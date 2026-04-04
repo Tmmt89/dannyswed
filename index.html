@@ -1567,6 +1567,203 @@
         '</div>' +
         '</div>';
     }
+    /* ═══════════════════════════════════════
+       EDIT MODE — открой ?edit в URL
+       Работает на ВСЕХ экранах.
+       Тапни на карту → координаты.
+       Перетащи маркер → новая позиция.
+       Внизу панель с координатами для копирования.
+       ═══════════════════════════════════════ */
+    (function() {
+      if (!location.search.includes('edit')) return;
+
+      // Inject styles
+      const style = document.createElement('style');
+      style.textContent = `
+        .edit-banner { position:fixed; top:52px; left:0; right:0; z-index:60;
+          background:#e74c3c; color:#fff; font-size:7px; text-align:center;
+          padding:6px 10px; line-height:1.6; border-bottom:2px solid #922b21; }
+        .edit-coords { position:fixed; bottom:55%; left:50%; transform:translateX(-50%);
+          z-index:300; background:var(--dark); border:3px solid var(--gold);
+          padding:10px 16px; color:var(--gold); font-size:9px; text-align:center;
+          white-space:nowrap; box-shadow:0 0 20px rgba(0,0,0,0.6);
+          pointer-events:none; opacity:0; transition:opacity 0.2s; }
+        .edit-coords.visible { opacity:1; }
+        .edit-crosshair { position:absolute; width:20px; height:20px;
+          border:2px solid #e74c3c; border-radius:50%;
+          transform:translate(-50%,-50%); pointer-events:none; z-index:25;
+          box-shadow:0 0 8px rgba(231,76,60,0.6); display:none; }
+        .edit-panel { position:fixed; bottom:0; left:0; right:0; z-index:300;
+          background:var(--dark); border-top:3px solid var(--gold);
+          padding:10px; max-height:35vh; overflow-y:auto; }
+        .edit-panel pre { color:var(--cream); font-family:'Press Start 2P',monospace;
+          font-size:6px; line-height:2; white-space:pre-wrap; word-break:break-all; }
+        .edit-panel .btn-copy { background:var(--green); color:#fff; border:none;
+          font-family:'Press Start 2P',monospace; font-size:7px; padding:8px 12px;
+          margin-bottom:8px; cursor:pointer; width:100%; }
+        .edit-mode .marker-btn { cursor:grab!important; }
+        .edit-mode .zone, .edit-mode .easter-boat,
+        .edit-mode .secret-spot, .edit-mode .quiz-btn,
+        .edit-mode .envelope-btn { pointer-events:none; opacity:0.3; }
+      `;
+      document.head.appendChild(style);
+      document.body.classList.add('edit-mode');
+
+      // Disable normal marker/zone clicks
+      document.querySelectorAll('[data-modal]').forEach(el => {
+        const clone = el.cloneNode(true);
+        el.replaceWith(clone);
+      });
+
+      // Banner
+      const banner = document.createElement('div');
+      banner.className = 'edit-banner';
+      banner.textContent = 'РЕЖИМ РЕДАКТИРОВАНИЯ — тапни карту или перетащи маркер';
+      document.body.appendChild(banner);
+
+      // Coord display
+      const coordsEl = document.createElement('div');
+      coordsEl.className = 'edit-coords';
+      document.body.appendChild(coordsEl);
+
+      // Panel
+      const panel = document.createElement('div');
+      panel.className = 'edit-panel';
+      panel.innerHTML = '<button class="btn-copy" id="btnCopy">КОПИРОВАТЬ ВСЕ КООРДИНАТЫ</button><pre id="coordsList"></pre>';
+      document.body.appendChild(panel);
+
+      // Add crosshair to each screen-wrapper
+      document.querySelectorAll('.screen-wrapper').forEach(w => {
+        const ch = document.createElement('div');
+        ch.className = 'edit-crosshair';
+        w.appendChild(ch);
+      });
+
+      // Show all detail screens for editing (as tabs)
+      // Add screen switcher buttons
+      const switcher = document.createElement('div');
+      switcher.style.cssText = 'position:fixed;top:78px;left:0;right:0;z-index:61;display:flex;';
+      ['overview', 'zone-a', 'zone-b'].forEach(id => {
+        const btn = document.createElement('button');
+        btn.textContent = id === 'overview' ? 'ОБЗОР' : id === 'zone-a' ? 'ЧЕРВЛЁННАЯ' : 'ГРОЗНЫЙ';
+        btn.style.cssText = 'flex:1;padding:8px;background:var(--dark2);color:var(--cream);' +
+          'border:1px solid var(--gold-dim);font-family:"Press Start 2P",monospace;font-size:6px;cursor:pointer;';
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.screen-detail').forEach(s => s.classList.remove('active'));
+          if (id !== 'overview') {
+            document.getElementById('screen-' + id).classList.add('active');
+          }
+        });
+        switcher.appendChild(btn);
+      });
+      document.body.appendChild(switcher);
+
+      // Helpers
+      function getWrapper(el) {
+        return el.closest('.screen-wrapper');
+      }
+
+      function getPct(wrapper, e) {
+        const rect = wrapper.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return {
+          x: ((touch.clientX - rect.left) / rect.width * 100).toFixed(1),
+          y: ((touch.clientY - rect.top) / rect.height * 100).toFixed(1)
+        };
+      }
+
+      function showCoords(text) {
+        coordsEl.textContent = text;
+        coordsEl.classList.add('visible');
+        clearTimeout(coordsEl._t);
+        coordsEl._t = setTimeout(() => coordsEl.classList.remove('visible'), 3000);
+      }
+
+      // Tap on any map → show coordinates
+      document.querySelectorAll('.screen-wrapper').forEach(wrapper => {
+        wrapper.addEventListener('click', function(e) {
+          if (e.target.closest('.marker')) return;
+          const { x, y } = getPct(wrapper, e);
+          const ch = wrapper.querySelector('.edit-crosshair');
+          if (ch) { ch.style.display = ''; ch.style.left = x+'%'; ch.style.top = y+'%'; }
+          showCoords('x: ' + x + '%  y: ' + y + '%');
+        });
+      });
+
+      // Drag markers
+      let dragMarker = null, dragWrapper = null, dragOX = 0, dragOY = 0;
+
+      function startDrag(e) {
+        const marker = e.target.closest('.marker');
+        if (!marker) return;
+        e.preventDefault();
+        dragMarker = marker;
+        dragWrapper = getWrapper(marker);
+        const rect = dragWrapper.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        const mRect = marker.getBoundingClientRect();
+        dragOX = touch.clientX - (mRect.left + mRect.width/2);
+        dragOY = touch.clientY - (mRect.top + mRect.height/2);
+      }
+
+      function moveDrag(e) {
+        if (!dragMarker) return;
+        e.preventDefault();
+        const rect = dragWrapper.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        const x = ((touch.clientX - dragOX - rect.left) / rect.width * 100).toFixed(1);
+        const y = ((touch.clientY - dragOY - rect.top) / rect.height * 100).toFixed(1);
+        dragMarker.style.left = x + '%';
+        dragMarker.style.top = y + '%';
+        const label = dragMarker.querySelector('.marker-label')?.textContent || '?';
+        showCoords(label + ' → x:' + x + '% y:' + y + '%');
+      }
+
+      function endDrag() {
+        if (!dragMarker) return;
+        dragMarker = null;
+        updateList();
+      }
+
+      document.addEventListener('mousedown', startDrag);
+      document.addEventListener('touchstart', startDrag, { passive: false });
+      document.addEventListener('mousemove', moveDrag);
+      document.addEventListener('touchmove', moveDrag, { passive: false });
+      document.addEventListener('mouseup', endDrag);
+      document.addEventListener('touchend', endDrag);
+
+      // Update coordinates list
+      function updateList() {
+        const sections = [
+          { title: '── ОБЗОР ──', sel: '#screen-overview .marker' },
+          { title: '── ЧЕРВЛЁННАЯ (невеста) ──', sel: '#screen-zone-a .marker' },
+          { title: '── ГРОЗНЫЙ (жених) ──', sel: '#screen-zone-b .marker' },
+          { title: '── ПАСХАЛКИ ──', sel: '#screen-zone-b .easter-boat, #screen-zone-b .secret-spot' }
+        ];
+        let text = '';
+        sections.forEach(s => {
+          const els = document.querySelectorAll(s.sel);
+          if (!els.length) return;
+          text += s.title + '\n';
+          els.forEach(el => {
+            const label = el.querySelector('.marker-label')?.textContent ||
+                          el.id || el.className.split(' ')[0];
+            text += label + ': left=' + el.style.left + ' top=' + el.style.top + '\n';
+          });
+          text += '\n';
+        });
+        document.getElementById('coordsList').textContent = text;
+      }
+
+      document.getElementById('btnCopy').addEventListener('click', function() {
+        navigator.clipboard.writeText(document.getElementById('coordsList').textContent).then(() => {
+          this.textContent = 'СКОПИРОВАНО!';
+          setTimeout(() => { this.textContent = 'КОПИРОВАТЬ ВСЕ КООРДИНАТЫ'; }, 1500);
+        });
+      });
+
+      setTimeout(updateList, 500);
+    })();
   </script>
 </body>
 </html>
