@@ -650,29 +650,35 @@
         </div>
       </div>
 
-      <!--
-        ЗАМЕНИ src на детальную карту зоны Б когда будет готова.
-        Сейчас — увеличенный фрагмент общей карты (заглушка).
-      -->
-      <img class="map-img detail-map-placeholder crop-b"
-           src="map.png"
+      <!-- Детальная карта зоны жениха — Грозный -->
+      <img class="map-img"
+           src="grooms_zone.jpg"
            alt="Детальная карта — Грозный"
            id="mapZoneB">
 
-      <!-- Маркеры зоны Б — Грозный (жених) -->
-      <div class="marker marker--green" style="left:40%; top:35%;" data-modal="modal-sbor">
-        <div class="marker-btn">🏁</div>
-        <div class="marker-label">СБОР</div>
-      </div>
-
-      <div class="marker" style="left:60%; top:55%;" data-modal="modal-groom">
+      <!--
+        Маркеры зоны Б — Грозный (жених)
+        Позиции в % от картинки grooms_zone (464×576).
+        Подправь через ?edit или вручную.
+      -->
+      <div class="marker" style="left:28%; top:22%;" data-modal="modal-groom">
         <div class="marker-btn">🏠</div>
         <div class="marker-label">Д. ЖЕНИХА</div>
       </div>
 
-      <div class="marker marker--green" style="left:35%; top:70%;" data-modal="modal-parus">
-        <div class="marker-btn">🎉</div>
-        <div class="marker-label">ПАРУС</div>
+      <div class="marker marker--green" style="left:55%; top:12%;" data-modal="modal-restaurant">
+        <div class="marker-btn">🍽️</div>
+        <div class="marker-label">РЕСТОРАН</div>
+      </div>
+
+      <div class="marker marker--green" style="left:18%; top:40%;" data-modal="modal-sbor">
+        <div class="marker-btn">🏁</div>
+        <div class="marker-label">СБОР</div>
+      </div>
+
+      <div class="marker marker--red" style="left:80%; top:50%;" data-modal="modal-mosque-groom">
+        <div class="marker-btn">🕌</div>
+        <div class="marker-label">МЕЧЕТЬ</div>
       </div>
 
       <button class="btn-back" data-back="screen-zone-b">◀ НАЗАД К КАРТЕ</button>
@@ -757,7 +763,52 @@
     </div>
   </div>
 
-  <!-- НАМАЗ -->
+  <!-- РЕСТОРАН -->
+  <div class="modal-overlay" id="modal-restaurant">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-icon">🍽️</div>
+        <div class="modal-header-text">
+          <h3>РЕСТОРАН</h3>
+          <span class="modal-time">—</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="step-badge">ЛОКАЦИЯ</div>
+        <div class="modal-text">
+          Ресторан для гостей.
+          <span class="address">📍 Адрес ресторана</span>
+        </div>
+        <a class="btn-nes btn-navigate" href="https://yandex.ru/maps/-/CHEpzR0r" target="_blank" rel="noopener">🗺️ НАВИГАТОР</a>
+        <button class="btn-nes btn-close" onclick="closeModal(this)">ЗАКРЫТЬ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МЕЧЕТЬ (зона жениха) -->
+  <div class="modal-overlay" id="modal-mosque-groom">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-icon">🕌</div>
+        <div class="modal-header-text">
+          <h3>МЕЧЕТЬ</h3>
+          <span class="modal-time">—</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="step-badge">НАМАЗ</div>
+        <img class="modal-img" src="mosque.jpg" alt="Мечеть">
+        <div class="modal-text">
+          Мечеть рядом с домом жениха.
+          <span class="address">📍 20-й участок</span>
+        </div>
+        <a class="btn-nes btn-navigate" href="https://yandex.ru/maps/-/CHEpzR0r" target="_blank" rel="noopener">🗺️ НАВИГАТОР</a>
+        <button class="btn-nes btn-close" onclick="closeModal(this)">ЗАКРЫТЬ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- НАМАЗ (зона невесты) -->
   <div class="modal-overlay" id="modal-namaz">
     <div class="modal">
       <div class="modal-header">
