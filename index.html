@@ -501,6 +501,255 @@
     .modal::-webkit-scrollbar-thumb { background: var(--gold-dim); }
 
     /* ═══════════════════════════════════════
+       COUNTDOWN TIMER
+       ═══════════════════════════════════════ */
+    .countdown {
+      color: var(--cream);
+      font-size: 7px;
+      margin-top: 6px;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+    .countdown b {
+      color: var(--gold);
+      font-weight: normal;
+    }
+
+    /* ═══════════════════════════════════════
+       ENVELOPE BUTTON (wishes)
+       ═══════════════════════════════════════ */
+    .envelope-btn {
+      position: absolute;
+      bottom: 12px; right: 12px;
+      z-index: 25;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      animation: zone-breathe 2.5s ease-in-out infinite;
+      border: 2px solid var(--gold);
+      border-radius: 10px;
+      background: rgba(15,25,35,0.85);
+      padding: 10px 12px;
+    }
+    .envelope-btn:active { transform: scale(0.95); }
+    .envelope-icon { font-size: 28px; }
+    .envelope-text {
+      font-size: 5px;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+
+    /* Envelope modal */
+    .envelope-form { padding: 16px; }
+    .envelope-form label {
+      display: block;
+      color: var(--gold);
+      font-size: 7px;
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+    .envelope-form label:first-child { margin-top: 0; }
+    .envelope-form input,
+    .envelope-form textarea {
+      width: 100%;
+      padding: 10px;
+      background: var(--dark2);
+      border: 2px solid var(--gold-dim);
+      color: var(--cream);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      outline: none;
+      resize: none;
+    }
+    .envelope-form input:focus,
+    .envelope-form textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(255,215,0,0.2);
+    }
+    .envelope-form textarea { height: 100px; line-height: 2; }
+
+    .btn-send {
+      background: var(--gold);
+      color: var(--dark);
+      margin-top: 14px;
+      box-shadow: inset -3px -3px 0 var(--gold-dim), inset 3px 3px 0 #ffe566;
+    }
+    .btn-send:active {
+      box-shadow: inset 3px 3px 0 var(--gold-dim), inset -3px -3px 0 #ffe566;
+    }
+
+    .form-success {
+      text-align: center;
+      color: var(--green);
+      font-size: 8px;
+      line-height: 2.5;
+      padding: 30px 16px;
+    }
+
+    /* ═══════════════════════════════════════
+       EASTER EGG — boat on lake
+       ═══════════════════════════════════════ */
+    .easter-boat {
+      position: absolute;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      z-index: 18;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      /* invisible hitbox */
+    }
+
+    /* Secret tap sparkle hint */
+    .secret-spot {
+      position: absolute;
+      width: 30px; height: 30px;
+      z-index: 18;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    .secret-spot::after {
+      content: '✦';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(255,215,0,0.4);
+      font-size: 10px;
+      animation: sparkle 3s ease-in-out infinite;
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
+      50% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+    }
+
+    /* ═══════════════════════════════════════
+       QUIZ OVERLAY
+       ═══════════════════════════════════════ */
+    .quiz-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh; height: 100svh;
+      background: var(--dark);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .quiz-overlay.active { opacity: 1; visibility: visible; }
+
+    .quiz-header {
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      padding: 58px 16px 14px;
+      text-align: center;
+    }
+    .quiz-header h2 {
+      font-size: 10px;
+      color: var(--dark);
+      line-height: 1.5;
+    }
+    .quiz-progress {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .quiz-dot {
+      width: 10px; height: 10px;
+      border: 2px solid var(--dark);
+      background: transparent;
+      border-radius: 2px;
+    }
+    .quiz-dot.done { background: var(--green); }
+    .quiz-dot.current { background: var(--dark); animation: blink-hint 0.8s infinite; }
+    .quiz-dot.wrong { background: var(--red); }
+
+    .quiz-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px;
+      gap: 12px;
+    }
+
+    .quiz-question {
+      color: var(--cream);
+      font-size: 9px;
+      line-height: 2;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .quiz-option {
+      display: block; width: 100%;
+      padding: 14px;
+      background: var(--dark2);
+      border: 3px solid var(--gold-dim);
+      color: var(--cream);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .quiz-option:active { border-color: var(--gold); }
+    .quiz-option.correct {
+      border-color: var(--green);
+      background: rgba(39,174,96,0.2);
+      color: var(--green);
+    }
+    .quiz-option.wrong-pick {
+      border-color: var(--red);
+      background: rgba(192,57,43,0.2);
+      color: var(--red-hi);
+    }
+    .quiz-option.disabled { pointer-events: none; opacity: 0.5; }
+
+    .quiz-result {
+      text-align: center;
+      padding: 30px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .quiz-result-icon { font-size: 48px; }
+    .quiz-result-title {
+      color: var(--gold);
+      font-size: 11px;
+      line-height: 2;
+    }
+    .quiz-result-score {
+      color: var(--cream);
+      font-size: 8px;
+      line-height: 2;
+    }
+
+    .quiz-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      z-index: 25;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      border: 2px solid var(--gold);
+      border-radius: 10px;
+      background: rgba(15,25,35,0.85);
+      padding: 8px 10px;
+      animation: zone-breathe 3s ease-in-out infinite;
+    }
+    .quiz-btn:active { transform: scale(0.95); }
+    .quiz-btn-icon { font-size: 22px; }
+    .quiz-btn-text { font-size: 5px; color: var(--gold); white-space: nowrap; }
+
+    /* ═══════════════════════════════════════
        LOADING SCREEN
        ═══════════════════════════════════════ */
     .loading-screen {
@@ -556,6 +805,7 @@
     <div class="hud-title">
       СВАДЬБА ДЕНИ
       <span>6 АПРЕЛЯ 2026 — ГРОЗНЫЙ</span>
+      <div class="countdown" id="countdown"></div>
     </div>
   </div>
 
@@ -595,6 +845,12 @@
       <div class="marker overview-marker" style="left:33%; top:45%;" data-modal="modal-cortege">
         <div class="marker-btn">🚗</div>
         <div class="marker-label">КОРТЕЖ</div>
+      </div>
+
+      <!-- КОНВЕРТ — кнопка пожеланий -->
+      <div class="envelope-btn" id="envelopeBtn">
+        <div class="envelope-icon">💌</div>
+        <div class="envelope-text">ПОЖЕЛАНИЯ</div>
       </div>
 
     </div>
@@ -679,6 +935,18 @@
       <div class="marker marker--red" style="left:80%; top:50%;" data-modal="modal-mosque-groom">
         <div class="marker-btn">🕌</div>
         <div class="marker-label">МЕЧЕТЬ</div>
+      </div>
+
+      <!-- Пасхалка: кораблик на озере -->
+      <div class="easter-boat" style="left:48%; top:55%;" id="easterBoat" title=""></div>
+
+      <!-- Пасхалка: секретный тап (3 раза) -->
+      <div class="secret-spot" style="left:70%; top:18%;" id="secretSpot"></div>
+
+      <!-- Кнопка ВИКТОРИНА -->
+      <div class="quiz-btn" id="quizBtn">
+        <div class="quiz-btn-icon">🎯</div>
+        <div class="quiz-btn-text">ВИКТОРИНА</div>
       </div>
 
       <button class="btn-back" data-back="screen-zone-b">◀ НАЗАД К КАРТЕ</button>
@@ -881,6 +1149,104 @@
   </div>
 
   <!-- ═══════════════════════════════════════════
+       КОНВЕРТ ПОЖЕЛАНИЙ
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-envelope">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-icon">💌</div>
+        <div class="modal-header-text">
+          <h3>ПОЖЕЛАНИЕ ЖЕНИХУ</h3>
+          <span class="modal-time">Дени прочтёт каждое!</span>
+        </div>
+      </div>
+      <div class="modal-body" id="envelopeBody">
+        <form class="envelope-form" id="wishForm">
+          <label>ТВОЁ ИМЯ</label>
+          <input type="text" name="name" placeholder="Как тебя зовут?" required>
+          <label>ПОЖЕЛАНИЕ</label>
+          <textarea name="wish" placeholder="Напиши пожелание Дени..." required></textarea>
+          <!--
+            Отправка пожеланий. Замени YOUR_EMAIL на email Дени:
+            action="https://formsubmit.co/YOUR_EMAIL"
+          -->
+          <button type="submit" class="btn-nes btn-send">📨 ОТПРАВИТЬ</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ПАСХАЛКА: КОРАБЛИК
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-boat">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-icon">🚢</div>
+        <div class="modal-header-text">
+          <h3>СЕКРЕТ!</h3>
+          <span class="modal-time">Пасхалка найдена</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-text" style="text-align:center; font-size:8px;">
+          Ты нашёл секретный кораблик!
+          <br><br>
+          Дени однажды сказал:
+          <br><br>
+          <span style="color:var(--gold); font-size:9px;">
+          «Свадьба — это начало<br>большого плавания»</span>
+          <br><br>
+          <span class="note">🏆 +100 очков гостя</span>
+        </div>
+        <button class="btn-nes btn-close" onclick="closeModal(this)">КРУТО!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ПАСХАЛКА: СЕКРЕТНЫЙ ТАП
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-secret">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-icon">🔓</div>
+        <div class="modal-header-text">
+          <h3>СЕКРЕТНОЕ ПОСЛАНИЕ</h3>
+          <span class="modal-time">Тройной тап!</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-text" style="text-align:center; font-size:8px;">
+          Ты разблокировал секрет!
+          <br><br>
+          <span style="color:var(--gold); font-size:9px;">
+          Дени благодарит каждого,<br>
+          кто разделит с ним<br>
+          этот важный день!</span>
+          <br><br>
+          <span class="note">🎖️ Достижение разблокировано</span>
+        </div>
+        <button class="btn-nes btn-close" onclick="closeModal(this)">СПАСИБО!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ВИКТОРИНА
+       ═══════════════════════════════════════════ -->
+  <div class="quiz-overlay" id="quizOverlay">
+    <div class="quiz-header">
+      <h2>🎯 ЗНАЕШЬ ЛИ ТЫ ДЕНИ?</h2>
+      <div class="quiz-progress" id="quizProgress"></div>
+    </div>
+    <div class="quiz-body" id="quizBody"></div>
+    <div style="padding:12px; text-align:center;">
+      <button class="btn-nes btn-close" id="quizClose" onclick="closeQuiz()">✕ ЗАКРЫТЬ</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
        JAVASCRIPT
        ═══════════════════════════════════════════ -->
   <script>
@@ -991,6 +1357,215 @@
         clearInterval(loadInterval);
         loadingScreen.classList.add('hidden');
       });
+    }
+
+    /* ═══════════════════════════════════════
+       COUNTDOWN TIMER
+       До 6 апреля 2026, 08:00 (UTC+3 Грозный)
+       ═══════════════════════════════════════ */
+    (function() {
+      const target = new Date('2026-04-06T08:00:00+03:00').getTime();
+      const el = document.getElementById('countdown');
+
+      function update() {
+        const diff = target - Date.now();
+        if (diff <= 0) {
+          el.innerHTML = '<b>СЕГОДНЯ СВАДЬБА!</b>';
+          return;
+        }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        el.innerHTML = 'ДО СВАДЬБЫ: <b>' + d + 'Д ' + h + 'Ч ' + m + 'М ' + s + 'С</b>';
+      }
+
+      update();
+      setInterval(update, 1000);
+    })();
+
+    /* ═══════════════════════════════════════
+       ENVELOPE — WISHES FORM
+       ═══════════════════════════════════════ */
+    document.getElementById('envelopeBtn').addEventListener('click', () => {
+      document.getElementById('modal-envelope').classList.add('active');
+    });
+
+    document.getElementById('wishForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = this.name.value.trim();
+      const wish = this.wish.value.trim();
+      if (!name || !wish) return;
+
+      /*
+        Чтобы пожелания приходили на email Дени:
+        1. Замени URL ниже на: https://formsubmit.co/EMAIL_ДЕНИ
+        2. Первый раз FormSubmit попросит подтвердить email
+        3. После этого все пожелания будут приходить на почту
+      */
+      fetch('https://formsubmit.co/ajax/YOUR_EMAIL_HERE', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          wish: wish,
+          _subject: 'Пожелание от ' + name + ' — Свадьба Дени'
+        })
+      }).catch(() => {});
+
+      // Show success regardless (offline-friendly)
+      document.getElementById('envelopeBody').innerHTML =
+        '<div class="form-success">' +
+        '✅ ОТПРАВЛЕНО!<br><br>' +
+        'Спасибо, ' + name + '!<br><br>' +
+        'Дени обязательно<br>прочитает твоё<br>пожелание 💛' +
+        '</div>';
+    });
+
+    /* ═══════════════════════════════════════
+       EASTER EGG — BOAT
+       ═══════════════════════════════════════ */
+    document.getElementById('easterBoat').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('modal-boat').classList.add('active');
+    });
+
+    /* ═══════════════════════════════════════
+       EASTER EGG — SECRET TRIPLE TAP
+       ═══════════════════════════════════════ */
+    (function() {
+      let tapCount = 0;
+      let tapTimer = null;
+      const spot = document.getElementById('secretSpot');
+
+      spot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tapCount++;
+
+        clearTimeout(tapTimer);
+        tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+
+        if (tapCount >= 3) {
+          tapCount = 0;
+          document.getElementById('modal-secret').classList.add('active');
+        }
+      });
+    })();
+
+    /* ═══════════════════════════════════════
+       QUIZ — "Знаешь ли ты Дени?"
+       ═══════════════════════════════════════
+       Замени вопросы/ответы на настоящие!
+       correct — индекс правильного ответа (0-3)
+    */
+    const quizQuestions = [
+      {
+        q: 'В каком городе родился Дени?',
+        options: ['Москва', 'Грозный', 'Аргун', 'Гудермес'],
+        correct: 1
+      },
+      {
+        q: 'Любимое блюдо Дени?',
+        options: ['Жижиг-галнаш', 'Хинкал', 'Шашлык', 'Плов'],
+        correct: 0
+      },
+      {
+        q: 'Какой у Дени любимый цвет?',
+        options: ['Белый', 'Чёрный', 'Синий', 'Зелёный'],
+        correct: 1
+      },
+      {
+        q: 'Сколько гостей ждём на свадьбе?',
+        options: ['50', '100', '200', '500+'],
+        correct: 3
+      },
+      {
+        q: 'Какая дата свадьбы?',
+        options: ['5 апреля', '6 апреля', '7 апреля', '8 апреля'],
+        correct: 1
+      }
+    ];
+
+    let quizState = { current: 0, score: 0, answered: [] };
+
+    document.getElementById('quizBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      quizState = { current: 0, score: 0, answered: [] };
+      document.getElementById('quizOverlay').classList.add('active');
+      renderQuiz();
+    });
+
+    function closeQuiz() {
+      document.getElementById('quizOverlay').classList.remove('active');
+    }
+
+    function renderQuiz() {
+      const body = document.getElementById('quizBody');
+      const progress = document.getElementById('quizProgress');
+
+      // Progress dots
+      progress.innerHTML = quizQuestions.map((_, i) => {
+        let cls = 'quiz-dot';
+        if (i < quizState.current) cls += quizState.answered[i] ? ' done' : ' wrong';
+        else if (i === quizState.current) cls += ' current';
+        return '<div class="' + cls + '"></div>';
+      }).join('');
+
+      // Check if quiz is over
+      if (quizState.current >= quizQuestions.length) {
+        renderQuizResult();
+        return;
+      }
+
+      const q = quizQuestions[quizState.current];
+      body.innerHTML =
+        '<div class="quiz-question">' + q.q + '</div>' +
+        q.options.map((opt, i) =>
+          '<button class="quiz-option" data-idx="' + i + '">' +
+          String.fromCharCode(65 + i) + '. ' + opt + '</button>'
+        ).join('');
+
+      body.querySelectorAll('.quiz-option').forEach(btn => {
+        btn.addEventListener('click', () => handleAnswer(parseInt(btn.dataset.idx)));
+      });
+    }
+
+    function handleAnswer(idx) {
+      const q = quizQuestions[quizState.current];
+      const correct = idx === q.correct;
+      quizState.answered.push(correct);
+      if (correct) quizState.score++;
+
+      // Highlight correct/wrong
+      const body = document.getElementById('quizBody');
+      body.querySelectorAll('.quiz-option').forEach(btn => {
+        const bIdx = parseInt(btn.dataset.idx);
+        btn.classList.add('disabled');
+        if (bIdx === q.correct) btn.classList.add('correct');
+        else if (bIdx === idx && !correct) btn.classList.add('wrong-pick');
+      });
+
+      setTimeout(() => {
+        quizState.current++;
+        renderQuiz();
+      }, 1000);
+    }
+
+    function renderQuizResult() {
+      const pct = Math.round((quizState.score / quizQuestions.length) * 100);
+      let icon, title;
+      if (pct === 100) { icon = '🏆'; title = 'ИДЕАЛЬНО!'; }
+      else if (pct >= 60) { icon = '⭐'; title = 'ОТЛИЧНО!'; }
+      else { icon = '🎮'; title = 'ПОПРОБУЙ ЕЩЁ!'; }
+
+      document.getElementById('quizBody').innerHTML =
+        '<div class="quiz-result">' +
+        '<div class="quiz-result-icon">' + icon + '</div>' +
+        '<div class="quiz-result-title">' + title + '</div>' +
+        '<div class="quiz-result-score">' +
+        quizState.score + ' из ' + quizQuestions.length + ' правильно' +
+        '</div>' +
+        '</div>';
     }
   </script>
 </body>
