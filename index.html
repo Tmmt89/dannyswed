@@ -1705,7 +1705,7 @@
       let dragMarker = null, dragWrapper = null, dragOX = 0, dragOY = 0;
 
       function startDrag(e) {
-        const marker = e.target.closest('.marker');
+        const marker = e.target.closest('.marker') || e.target.closest('.easter-boat') || e.target.closest('.secret-spot');
         if (!marker) return;
         e.preventDefault();
         dragMarker = marker;
@@ -1726,7 +1726,7 @@
         const y = ((touch.clientY - dragOY - rect.top) / rect.height * 100).toFixed(1);
         dragMarker.style.left = x + '%';
         dragMarker.style.top = y + '%';
-        const label = dragMarker.querySelector('.marker-label')?.textContent || '?';
+        const label = dragMarker.querySelector('.marker-label')?.textContent || dragMarker.id || '?';
         showCoords(label + ' → x:' + x + '% y:' + y + '%');
       }
 
