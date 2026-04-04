@@ -1602,9 +1602,20 @@
           font-family:'Press Start 2P',monospace; font-size:7px; padding:8px 12px;
           margin-bottom:8px; cursor:pointer; width:100%; }
         .edit-mode .marker-btn { cursor:grab!important; }
-        .edit-mode .zone, .edit-mode .easter-boat,
-        .edit-mode .secret-spot, .edit-mode .quiz-btn,
+        .edit-mode .zone, .edit-mode .quiz-btn,
         .edit-mode .envelope-btn { pointer-events:none; opacity:0.3; }
+        .edit-mode .easter-boat,
+        .edit-mode .secret-spot {
+          pointer-events:auto!important; cursor:grab!important;
+          width:44px; height:44px;
+          border:3px dashed #e74c3c; border-radius:50%;
+          background:rgba(231,76,60,0.25);
+          display:flex; align-items:center; justify-content:center;
+          font-size:10px; color:#e74c3c;
+        }
+        .edit-mode .easter-boat::before { content:'🚢'; font-size:18px; }
+        .edit-mode .secret-spot::before { content:'✦'; font-size:18px; }
+        .edit-mode .secret-spot::after { display:none; }
       `;
       document.head.appendChild(style);
       document.body.classList.add('edit-mode');
