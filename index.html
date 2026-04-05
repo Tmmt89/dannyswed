@@ -2205,7 +2205,7 @@
     function gGenerateSchedule() {
       var s = [];
       var t = 1.5 + Math.random() * 0.5;
-      for (var i = 0; i < 14; i++) {
+      for (var i = 0; i < 30; i++) {
         s.push({ time: t, type: gObstacleTypes[Math.floor(Math.random() * gObstacleTypes.length)] });
         t += 0.8 + Math.random() * 1.7;
         if (t > gDuration - 1) break;
