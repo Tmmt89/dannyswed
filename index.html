@@ -503,29 +503,81 @@
     }
 
     /* ═══════════════════════════════════════
-       ENVELOPE BUTTON (wishes)
+       UNIFIED SIDE MENU (overview map)
        ═══════════════════════════════════════ */
-    .envelope-btn {
+    .side-menu {
       position: absolute;
-      bottom: 12px; right: 12px;
-      z-index: 25;
-      cursor: pointer;
+      top: 62px;
+      left: max(10px, calc(50% - 340px));
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: opacity 0.3s ease;
+    }
+
+    .side-menu-btn {
+      width: 52px;
+      border: 2px solid var(--gold);
+      border-radius: 4px;
+      background: rgba(15, 25, 35, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
-      animation: zone-breathe 2.5s ease-in-out infinite;
-      border: 2px solid var(--gold);
-      border-radius: 10px;
-      background: rgba(15,25,35,0.85);
-      padding: 10px 12px;
+      justify-content: center;
+      gap: 3px;
+      padding: 6px 4px 5px;
+      cursor: pointer;
+      position: relative;
+      box-shadow:
+        inset -2px -2px 0 rgba(0,0,0,0.3),
+        inset 2px 2px 0 rgba(255,215,0,0.15),
+        0 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      animation: menu-pulse 3s ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * 0.3s);
     }
-    .envelope-btn:active { transform: scale(0.95); }
-    .envelope-icon { font-size: 42px; }
-    .envelope-text {
+
+    .side-menu-btn:active {
+      transform: scale(0.9);
+      box-shadow:
+        inset 2px 2px 0 rgba(0,0,0,0.3),
+        inset -2px -2px 0 rgba(255,215,0,0.15),
+        0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .side-menu-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .side-menu-label {
+      font-family: 'Press Start 2P', monospace;
       font-size: 5px;
       color: var(--gold);
+      text-align: center;
+      line-height: 1.2;
       white-space: nowrap;
+    }
+
+    @keyframes menu-pulse {
+      0%, 100% { border-color: var(--gold); }
+      50% {
+        border-color: var(--gold-dim);
+        box-shadow:
+          inset -2px -2px 0 rgba(0,0,0,0.3),
+          inset 2px 2px 0 rgba(255,215,0,0.15),
+          0 2px 8px rgba(0,0,0,0.4),
+          0 0 12px rgba(255,215,0,0.2);
+      }
+    }
+
+    /* Hide side menu when map is zooming into a zone */
+    #screen-overview:has(#overview-wrapper.zoom-to-a) .side-menu,
+    #screen-overview:has(#overview-wrapper.zoom-to-b) .side-menu {
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Envelope modal */
@@ -842,24 +894,6 @@
       line-height: 2;
     }
 
-    .quiz-btn {
-      position: absolute;
-      top: 12px; right: 12px;
-      z-index: 25;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      border: 2px solid var(--gold);
-      border-radius: 10px;
-      background: rgba(15,25,35,0.85);
-      padding: 8px 10px;
-      animation: zone-breathe 3s ease-in-out infinite;
-    }
-    .quiz-btn:active { transform: scale(0.95); }
-    .quiz-btn-icon { font-size: 22px; }
-    .quiz-btn-text { font-size: 5px; color: var(--gold); white-space: nowrap; }
 
     /* ═══════════════════════════════════════
        MINI-GAME
@@ -947,24 +981,6 @@
     }
     .game-msg .btn-nes { max-width: 250px; margin: 0 auto; }
 
-    .game-btn {
-      position: absolute;
-      top: 12px; left: 12px;
-      z-index: 25;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      border: 2px solid var(--gold);
-      border-radius: 10px;
-      background: rgba(15,25,35,0.85);
-      padding: 10px 12px;
-      animation: zone-breathe 2.5s ease-in-out infinite;
-    }
-    .game-btn:active { transform: scale(0.95); }
-    .game-btn-icon { font-size: 28px; }
-    .game-btn-text { font-size: 5px; color: var(--gold); white-space: nowrap; }
 
     /* ═══════════════════════════════════════
        ZASADA — money animation
@@ -1128,23 +1144,6 @@
     /* ═══════════════════════════════════════
        TIMELINE BOTTOM SHEET
        ═══════════════════════════════════════ */
-    .hud-timeline-btn {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: 2px solid var(--gold);
-      color: var(--gold);
-      font-family: 'Press Start 2P', monospace;
-      font-size: 12px;
-      width: 34px; height: 34px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .hud-timeline-btn:active { transform: translateY(-50%) scale(0.9); }
 
     .timeline-backdrop {
       position: fixed;
@@ -1306,7 +1305,6 @@
       <span>6 АПРЕЛЯ 2026 — ГРОЗНЫЙ</span>
       <div class="countdown" id="countdown"></div>
     </div>
-    <button class="hud-timeline-btn" id="timelineBtn">📋</button>
   </div>
 
   <div class="timeline-backdrop" id="timelineBackdrop"></div>
@@ -1360,24 +1358,26 @@
         <div class="marker-label" style="border-color:#4a90d9;color:#4a90d9;">???</div>
       </div>
 
-      <!-- Кнопка МИНИ-ИГРА — левый нижний угол -->
-      <div class="game-btn" id="gameBtn">
-        <div class="game-btn-icon">🏎️</div>
-        <div class="game-btn-text">МИНИ-ИГРА</div>
-      </div>
+    </div>
 
-      <!-- Кнопка ВИКТОРИНА — правый верхний угол -->
-      <div class="quiz-btn" id="quizBtn">
-        <div class="quiz-btn-icon">🎯</div>
-        <div class="quiz-btn-text">ВИКТОРИНА</div>
+    <!-- UNIFIED SIDE MENU -->
+    <div class="side-menu" id="sideMenu">
+      <div class="side-menu-btn" id="timelineBtn" style="--i:0">
+        <span class="side-menu-icon">📋</span>
+        <span class="side-menu-label">ПЛАН</span>
       </div>
-
-      <!-- КОНВЕРТ — кнопка пожеланий -->
-      <div class="envelope-btn" id="envelopeBtn">
-        <div class="envelope-icon">✉️</div>
-        <div class="envelope-text">ПОЖЕЛАНИЯ</div>
+      <div class="side-menu-btn" id="quizBtn" style="--i:1">
+        <span class="side-menu-icon">🎯</span>
+        <span class="side-menu-label">КВИЗ</span>
       </div>
-
+      <div class="side-menu-btn" id="gameBtn" style="--i:2">
+        <span class="side-menu-icon">🏎️</span>
+        <span class="side-menu-label">ИГРА</span>
+      </div>
+      <div class="side-menu-btn" id="envelopeBtn" style="--i:3">
+        <span class="side-menu-icon">✉️</span>
+        <span class="side-menu-label">WISHES</span>
+      </div>
     </div>
   </div>
 
@@ -2349,6 +2349,7 @@
     var gPlayer = null;
     var gObstacles = [];
     var gSpeed = 0;
+    var gBgOffset = 0;
     var gChar = 'zurab';
     var gHolding = false;
     var gLastSpawn = 0;
@@ -2359,11 +2360,19 @@
     var gNextCollectible = 3.5;
     var gFloatingTexts = [];
     var gCollectibleTypes = [
-      { emoji: '🔢', label: 'O909OO95', msg: 'Удачно взял Ольги!',           color: '#4fc97e' },
-      { emoji: '🚘', label: 'Чанган',   msg: 'Хапнул Чанган на кыргызском!', color: '#5bc8f5' },
-      { emoji: '🍽️', label: 'Плов',    msg: 'Хорошо порвался у паков!',      color: '#f5a623' },
-      { emoji: '💰', label: 'Rise',     msg: 'Получил премию в Rise!',        color: '#e040fb' },
+      { emoji: '🔢', label: 'O909OO95', msg: 'Удачно взял Ольги!',           color: '#00ff66', img: 'olgi_pixel.png' },
+      { emoji: '🚘', label: 'Чанган',   msg: 'Хапнул Чанган\nна кыргызском!', color: '#00ccff', img: 'changan_pixel.png' },
+      { emoji: '🍽️', label: 'Плов',    msg: 'Порвался у паков!',             color: '#ffaa00', img: 'plov_pixel.png' },
+      { emoji: '💰', label: 'Rise',     msg: 'Получил премию в Rise!',        color: '#ff44ff' },
     ];
+    var gCollectibleImages = {};
+    gCollectibleTypes.forEach(function(ct) {
+      if (ct.img) {
+        var im = new Image();
+        im.src = ct.img;
+        gCollectibleImages[ct.img] = im;
+      }
+    });
 
     // Sprites
     var gSprites = {};
@@ -2442,7 +2451,7 @@
         var scale = groundY / bgH;
         var drawW = bgW * scale;
         // Parallax: bg scrolls at 1/15 of car speed — never loops in 40s
-        var offset = Math.min(gTime * (gSpeed / 15), drawW - W);
+        var offset = Math.min(gBgOffset, drawW - W);
         offset = Math.max(0, offset);
         gCtx.save();
         gCtx.beginPath();
@@ -2522,37 +2531,57 @@
 
     function gDrawCollectible(col) {
       var fs = Math.min(gCanvas.width, gCanvas.height) * 0.045;
-      gCtx.font = fs + 'px sans-serif';
-      var label = col.type.emoji + ' ' + col.type.label;
-      var tw = gCtx.measureText(label).width;
-      var pw = tw + fs * 1.2, ph = fs * 1.6;
-      var rx = col.x - pw / 2, ry = col.y - ph / 2;
-      gCtx.fillStyle = col.type.color;
-      gCtx.beginPath();
-      gCtx.roundRect(rx, ry, pw, ph, ph / 2);
-      gCtx.fill();
-      // pulse overlay
-      gCtx.globalAlpha = 0.2 + 0.15 * Math.sin(gTime * 5);
-      gCtx.fillStyle = '#fff';
-      gCtx.beginPath();
-      gCtx.roundRect(rx, ry, pw, ph, ph / 2);
-      gCtx.fill();
-      gCtx.globalAlpha = 1;
-      gCtx.fillStyle = '#fff';
-      gCtx.textAlign = 'center';
-      gCtx.textBaseline = 'middle';
-      gCtx.fillText(label, col.x, col.y);
-      col.drawW = pw; col.drawH = ph;
+      if (col.type.img && gCollectibleImages[col.type.img] && gCollectibleImages[col.type.img].complete) {
+        var img = gCollectibleImages[col.type.img];
+        var aspect = img.naturalWidth / img.naturalHeight;
+        var ih = gGetSpriteH() * 0.7;
+        var iw = ih * aspect;
+        var ix = col.x - iw / 2, iy = col.y - ih / 2;
+        // pulse glow
+        gCtx.globalAlpha = 0.3 + 0.2 * Math.sin(gTime * 5);
+        gCtx.shadowColor = col.type.color;
+        gCtx.shadowBlur = fs * 0.8;
+        gCtx.drawImage(img, ix, iy, iw, ih);
+        gCtx.shadowBlur = 0;
+        gCtx.globalAlpha = 1;
+        gCtx.drawImage(img, ix, iy, iw, ih);
+        col.drawW = iw; col.drawH = ih;
+      } else {
+        gCtx.font = fs + 'px sans-serif';
+        var label = col.type.emoji + ' ' + col.type.label;
+        var tw = gCtx.measureText(label).width;
+        var pw = tw + fs * 1.2, ph = fs * 1.6;
+        var rx = col.x - pw / 2, ry = col.y - ph / 2;
+        gCtx.fillStyle = col.type.color;
+        gCtx.beginPath();
+        gCtx.roundRect(rx, ry, pw, ph, ph / 2);
+        gCtx.fill();
+        // pulse overlay
+        gCtx.globalAlpha = 0.2 + 0.15 * Math.sin(gTime * 5);
+        gCtx.fillStyle = '#fff';
+        gCtx.beginPath();
+        gCtx.roundRect(rx, ry, pw, ph, ph / 2);
+        gCtx.fill();
+        gCtx.globalAlpha = 1;
+        gCtx.fillStyle = '#fff';
+        gCtx.textAlign = 'center';
+        gCtx.textBaseline = 'middle';
+        gCtx.fillText(label, col.x, col.y);
+        col.drawW = pw; col.drawH = ph;
+      }
     }
 
     function gCheckCollect(col) {
       if (!col.drawW) return false;
-      var gy = gPlayer.groundY + gPlayer.h;
-      var pL = gPlayer.x, pR = gPlayer.x + (gPlayer.drawW || gPlayer.w);
-      var pT = gy - (gPlayer.drawH || gPlayer.h * 1.8);
+      var pH = gPlayer.drawH || gPlayer.h * 1.8;
+      var pW = gPlayer.drawW || gPlayer.w;
+      var pL = gPlayer.x;
+      var pR = gPlayer.x + pW;
+      var pB = gPlayer.y + gPlayer.h;
+      var pT = pB - pH;
       var cL = col.x - col.drawW / 2, cR = col.x + col.drawW / 2;
       var cT = col.y - col.drawH / 2, cB = col.y + col.drawH / 2;
-      return pR > cL && pL < cR && gy > cT && pT < cB;
+      return pR > cL && pL < cR && pB > cT && pT < cB;
     }
 
     function gGameLoop(ts) {
@@ -2579,6 +2608,7 @@
 
       // Speed increases over time
       gSpeed = gCanvas.width * (0.63 + gTime * 0.008);
+      gBgOffset += gSpeed * dt / 15;
 
       // Infinite spawn with randomised spacing
       if (gTime >= gNextSpawn) {
@@ -2590,8 +2620,11 @@
       // Collectible spawn (раз в 5–9 сек)
       if (gTime >= gNextCollectible) {
         var ctype = gCollectibleTypes[Math.floor(Math.random() * gCollectibleTypes.length)];
-        var minY = gPlayer.groundY * 0.25;
-        var maxY = gPlayer.groundY * 0.65;
+        var jumpVel = gCanvas.height * 1.5;
+        var jumpGrav = gCanvas.height * 4.0;
+        var maxJumpH = (jumpVel * jumpVel) / (2 * jumpGrav);
+        var minY = gPlayer.groundY - maxJumpH;
+        var maxY = gPlayer.groundY - 0.6 * maxJumpH;
         gCollectibles.push({ x: gCanvas.width + 60, y: minY + Math.random() * (maxY - minY), type: ctype, drawW: 0, drawH: 0 });
         gNextCollectible = gTime + 5 + Math.random() * 4;
       }
@@ -2619,13 +2652,18 @@
         ft.alpha -= dt / 2;
         if (ft.alpha <= 0) { gFloatingTexts.splice(fi, 1); continue; }
         gCtx.globalAlpha = ft.alpha;
-        gCtx.font = 'bold ' + Math.min(gCanvas.width * 0.038, 20) + 'px sans-serif';
+        var ftSize = Math.min(gCanvas.width * 0.13, 70);
+        gCtx.font = 'bold ' + ftSize + 'px sans-serif';
         gCtx.fillStyle = ft.color || '#fff';
         gCtx.textAlign = 'center';
         gCtx.textBaseline = 'middle';
+        gCtx.strokeStyle = '#000';
+        gCtx.lineWidth = ftSize * 0.25;
+        gCtx.lineJoin = 'round';
         var ftLines = ft.text.split('\n');
         for (var fl = 0; fl < ftLines.length; fl++) {
-          gCtx.fillText(ftLines[fl], ft.x, ft.y + fl * 24);
+          gCtx.strokeText(ftLines[fl], ft.x, ft.y + fl * ftSize * 1.2);
+          gCtx.fillText(ftLines[fl], ft.x, ft.y + fl * ftSize * 1.2);
         }
         gCtx.globalAlpha = 1;
       }
@@ -2695,6 +2733,7 @@
       gCollectibles = [];
       gFloatingTexts = [];
       gTime = 0;
+      gBgOffset = 0;
       gLastSpawn = 0;
       gNextSpawn = 1.5;
       gNextCollectible = 3.5;
@@ -2821,8 +2860,7 @@
           margin-bottom:8px; cursor:pointer; width:100%; }
         .edit-mode .marker-btn { cursor:grab!important; }
         .edit-mode .zone { cursor:grab!important; }
-        .edit-mode .quiz-btn,
-        .edit-mode .envelope-btn { pointer-events:none; opacity:0.3; }
+        .edit-mode .side-menu { pointer-events:none; opacity:0.3; }
         .edit-mode .easter-boat,
         .edit-mode .secret-spot {
           pointer-events:auto!important; cursor:grab!important;
