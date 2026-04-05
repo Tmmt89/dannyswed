@@ -775,7 +775,7 @@
       flex: 1;
       position: relative;
       overflow: hidden;
-      background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, #8B7355 60%, #6B4226 100%);
+      background: #1a1a2e;
     }
     .game-canvas-wrap canvas {
       width: 100%; height: 100%;
@@ -1934,6 +1934,10 @@
 
     // Sprites
     var gSprites = {};
+    // Background panorama
+    var gBgImg = new Image();
+    gBgImg.src = 'game_bg.jpg';
+
     var gSpriteFiles = {
       zurab: 'game_zurab_sm.png',
       salambek: 'game_salambek_sm.png',
@@ -1977,10 +1981,10 @@
         x: gCanvas.width * 0.08,
         w: gCanvas.width * 0.16,
         h: gCanvas.width * 0.09,
-        y: gCanvas.height * 0.68,
+        y: gCanvas.height * 0.78,
         vy: 0,
         grounded: true,
-        groundY: gCanvas.height * 0.68,
+        groundY: gCanvas.height * 0.78,
         drawW: 0,
         drawH: 0
       };
@@ -2004,30 +2008,35 @@
       }
     }
 
-    function gDrawGround() {
-      var gy = gPlayer.groundY + gPlayer.h;
-      gCtx.fillStyle = '#8B7355';
-      gCtx.fillRect(0, gy, gCanvas.width, gCanvas.height - gy);
-      gCtx.strokeStyle = '#6B4226';
-      gCtx.lineWidth = 3;
-      gCtx.beginPath();
-      gCtx.moveTo(0, gy);
-      gCtx.lineTo(gCanvas.width, gy);
-      gCtx.stroke();
-      gCtx.fillStyle = '#A0926B';
-      var mw = 40;
-      var off = (gTime * gSpeed * 2) % (mw * 2);
-      for (var x = -off; x < gCanvas.width; x += mw * 2) {
-        gCtx.fillRect(x, gy + 15, mw, 4);
+    function gDrawBackground() {
+      if (!gBgImg.complete || !gBgImg.naturalWidth) {
+        // Fallback: simple sky + ground
+        var grad = gCtx.createLinearGradient(0, 0, 0, gPlayer.groundY);
+        grad.addColorStop(0, '#87CEEB');
+        grad.addColorStop(1, '#B0E0E6');
+        gCtx.fillStyle = grad;
+        gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
+        return;
       }
-    }
 
-    function gDrawSky() {
-      var grad = gCtx.createLinearGradient(0, 0, 0, gPlayer.groundY);
-      grad.addColorStop(0, '#87CEEB');
-      grad.addColorStop(1, '#B0E0E6');
-      gCtx.fillStyle = grad;
-      gCtx.fillRect(0, 0, gCanvas.width, gPlayer.groundY + gPlayer.h);
+      // Panorama scrolls from right to left over gDuration seconds
+      var bgW = gBgImg.naturalWidth;
+      var bgH = gBgImg.naturalHeight;
+
+      // How much of the panorama to show: canvas maps to a portion of bgW
+      // At t=0 we see the left edge, at t=gDuration we see the right edge
+      var visibleW = bgW * (gCanvas.width / gCanvas.height) * (bgH / bgW) * 0.5;
+      if (visibleW > bgW * 0.5) visibleW = bgW * 0.5;
+
+      var scrollRange = bgW - visibleW;
+      var progress = Math.min(gTime / gDuration, 1);
+      var srcX = progress * scrollRange;
+
+      // Draw panorama filling the entire canvas
+      gCtx.drawImage(gBgImg,
+        srcX, 0, visibleW, bgH,
+        0, 0, gCanvas.width, gCanvas.height
+      );
     }
 
     function gDrawPlayer() {
@@ -2110,8 +2119,7 @@
       }
 
       // Draw
-      gDrawSky();
-      gDrawGround();
+      gDrawBackground();
       gDrawPlayer();
       for (var j = 0; j < gObstacles.length; j++) gDrawObstacle(gObstacles[j]);
 
