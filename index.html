@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0f1923">
   <title>Свадьба Дени — 6 апреля 2026</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
@@ -799,6 +800,11 @@
     .game-msg.hidden { display: none; }
     .fail-img { width: 100%; max-width: 320px; border-radius: 10px; display: none; margin: 0 auto; }
     .fail-img.visible { display: block; }
+    .game-score-line { font-size: 18px; color: #f5c518; }
+    .game-name-input { width: 100%; max-width: 260px; padding: 10px 14px; font-family: inherit; font-size: 16px; border: 2px solid #f5c518; border-radius: 8px; background: rgba(0,0,0,0.6); color: #fff; text-align: center; }
+    .game-name-input::placeholder { color: rgba(255,255,255,0.4); }
+    .leader-list { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
+    .leader-row { display: flex; justify-content: space-between; padding: 6px 12px; background: rgba(255,255,255,0.08); border-radius: 6px; font-size: 15px; }
 
     .game-msg-icon { font-size: 48px; }
     .game-msg-title {
@@ -1345,7 +1351,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">ШАГ 1</div>
-        <img class="modal-img" src="cars_in_poselok.jpg" alt="Сбор">
+        <img class="modal-img" loading="lazy" src="cars_in_poselok.jpg" alt="Сбор">
         <div class="modal-text">
           Собираемся у дома жениха.
           Кортеж выезжает в 11:00.
@@ -1371,7 +1377,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">ШАГ 1</div>
-        <img class="modal-img" src="poselok_blank.jpg" alt="Дом жениха">
+        <img class="modal-img" loading="lazy" src="poselok_blank.jpg" alt="Дом жениха">
         <div class="modal-text">
           Дом жениха — место старта.
           Гости собираются здесь утром.
@@ -1395,7 +1401,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">ШАГ 2</div>
-        <img class="modal-img" src="traffic.jpg" alt="Кортеж">
+        <img class="modal-img" loading="lazy" src="traffic.jpg" alt="Кортеж">
         <div class="modal-text">
           Свадебный кортеж проезжает
           через Грозный к дому невесты.
@@ -1419,7 +1425,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">ЛОКАЦИЯ</div>
-        <img class="modal-img" src="parus.jpg" alt="Ресторан Парус">
+        <img class="modal-img" loading="lazy" src="parus.jpg" alt="Ресторан Парус">
         <div class="modal-text">
           Ожидаемое время прибытия
           кортежа с невестой — 13:30.
@@ -1446,7 +1452,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">НАМАЗ</div>
-        <img class="modal-img" src="mosque.jpg" alt="Мечеть">
+        <img class="modal-img" loading="lazy" src="mosque.jpg" alt="Мечеть">
         <div class="modal-text">
           Мечеть рядом с домом жениха.
           <span class="address">📍 20-й участок</span>
@@ -1469,7 +1475,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">НАМАЗ</div>
-        <img class="modal-img" src="mosque.jpg" alt="Мечеть">
+        <img class="modal-img" loading="lazy" src="mosque.jpg" alt="Мечеть">
         <div class="modal-text">
           Останавливаемся для совершения
           полуденного намаза.
@@ -1493,7 +1499,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">ШАГ 3</div>
-        <img class="modal-img" src="brides_house.jpg" alt="Дом невесты">
+        <img class="modal-img" loading="lazy" src="brides_house.jpg" alt="Дом невесты">
         <div class="modal-text">
           Прибытие кортежа к дому невесты,
           ожидание вывода невесты.
@@ -1519,7 +1525,7 @@
       </div>
       <div class="modal-body">
         <div class="step-badge">ФИНАЛ</div>
-        <img class="modal-img" src="parus.jpg" alt="Парус">
+        <img class="modal-img" loading="lazy" src="parus.jpg" alt="Парус">
         <div class="modal-text">
           Торжественный приём гостей
           в банкетном зале «Парус».
@@ -1574,7 +1580,7 @@
       </div>
       <div class="modal-body" id="zasadaBody">
         <!-- Замени src на картинку засады когда будет -->
-        <img class="modal-img" id="zasadaImg" src="zasada.jpg" alt="Засада" style="display:none;" onload="this.style.display='block'">
+        <img class="modal-img" loading="lazy" id="zasadaImg" src="zasada.jpg" alt="Засада" style="display:none;" onload="this.style.display='block'">
         <div class="modal-text" id="zasadaText" style="text-align:center; font-size:8px;">
           Кортеж не успел выехать
           от дома невесты, как тут же
@@ -1606,7 +1612,7 @@
       </div>
       <div class="modal-body">
         <!-- Замени src на баннер Rise когда будет готов -->
-        <img class="modal-img" src="rise_banner.jpg" alt="Rise English School" style="display:none;" id="riseBanner" onload="this.style.display='block'">
+        <img class="modal-img" loading="lazy" src="rise_banner.jpg" alt="Rise English School" style="display:none;" id="riseBanner" onload="this.style.display='block'">
         <div class="modal-text" style="text-align:center; font-size:8px;">
           Кортеж свернул не туда
           и оказался в Лондоне.
@@ -1750,18 +1756,17 @@
         <div class="game-msg-title" id="failTitle">АВАРИЯ!</div>
         <img id="failImg" class="fail-img" src="" alt="">
         <div class="game-msg-text" id="failText"></div>
-        <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">🔄 ЕЩЁ РАЗ</button>
+        <div class="game-score-line">Ты продержался <strong id="failScore">0</strong> сек!</div>
+        <input id="playerName" class="game-name-input" placeholder="Введи своё имя" maxlength="20">
+        <button class="btn-nes btn-navigate" onclick="gSubmitScore()" style="max-width:250px;">🏆 В ХИТ-ПАРАД</button>
+        <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;margin-top:0;">🔄 ЕЩЁ РАЗ</button>
         <button class="btn-nes btn-close" onclick="closeGame()" style="max-width:250px;">ВЫЙТИ</button>
       </div>
-      <div class="game-msg hidden" id="gameWin">
-        <div class="game-msg-icon">🏆</div>
-        <div class="game-msg-title">ПОЗДРАВЛЯЕМ!</div>
-        <div class="game-msg-text">
-          Ты занял 2-е место в кортеже —<br>
-          почётное место прямо за<br>
-          машиной невесты!
-        </div>
-        <button class="btn-nes btn-navigate" onclick="closeGame()" style="max-width:250px;">🎉 КРУТО!</button>
+      <div class="game-msg hidden" id="gameLeader">
+        <div class="game-msg-title">🏆 ХИТ-ПАРАД</div>
+        <div id="leaderList" class="leader-list">Загрузка...</div>
+        <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">🔄 ЕЩЁ РАЗ</button>
+        <button class="btn-nes btn-close" onclick="closeGame()" style="max-width:250px;">ВЫЙТИ</button>
       </div>
     </div>
   </div>
@@ -2166,15 +2171,15 @@
     var gWrap = null;
     var gRunning = false;
     var gTime = 0;
-    var gDuration = 40;
     var gLastFrame = 0;
     var gPlayer = null;
     var gObstacles = [];
-    var gObstacleIndex = 0;
     var gSpeed = 0;
     var gChar = 'zurab';
-    var gSchedule = [];
     var gHolding = false;
+    var gLastSpawn = 0;
+    var gLastScore = 0;
+    var gLeaderUrl = 'ВСТАВИТЬ_URL_СЮДА';
 
     // Sprites
     var gSprites = {};
@@ -2202,17 +2207,6 @@
       { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
       { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал де ваш!' }
     ];
-
-    function gGenerateSchedule() {
-      var s = [];
-      var t = 1.5 + Math.random() * 0.5;
-      for (var i = 0; i < 30; i++) {
-        s.push({ time: t, type: gObstacleTypes[Math.floor(Math.random() * gObstacleTypes.length)] });
-        t += 0.8 + Math.random() * 1.7;
-        if (t > gDuration - 1) break;
-      }
-      return s;
-    }
 
     function gResize() {
       if (!gCanvas || !gWrap) return;
@@ -2348,7 +2342,6 @@
       gLastFrame = ts;
       gTime += dt;
       gResize();
-      gSpeed = gCanvas.width * 0.633;
 
       // Gravity — all units per second (consistent with jump velocity)
       var gravity = gCanvas.height * 4.0;
@@ -2365,10 +2358,14 @@
         }
       }
 
-      // Spawn
-      while (gObstacleIndex < gSchedule.length && gSchedule[gObstacleIndex].time <= gTime) {
-        gObstacles.push({ x: gCanvas.width + 50, type: gSchedule[gObstacleIndex].type });
-        gObstacleIndex++;
+      // Speed increases over time
+      gSpeed = gCanvas.width * (0.63 + gTime * 0.008);
+
+      // Infinite spawn: interval shrinks from 2.2s down to 0.9s
+      var spawnInterval = Math.max(0.9, 2.2 - gTime * 0.02);
+      if (gTime > 1.5 && gTime - gLastSpawn > spawnInterval) {
+        gLastSpawn = gTime;
+        gObstacles.push({ x: gCanvas.width + 60, type: gObstacleTypes[Math.floor(Math.random() * gObstacleTypes.length)] });
       }
 
       // Move
@@ -2382,19 +2379,22 @@
       gDrawPlayer();
       for (var j = 0; j < gObstacles.length; j++) gDrawObstacle(gObstacles[j]);
 
-      // Timer
-      var rem = Math.max(0, Math.ceil(gDuration - gTime));
+      // Timer — show elapsed time
+      var elapsed = Math.floor(gTime);
       document.getElementById('gameTimer').textContent =
-        String(Math.floor(rem / 60)).padStart(2, '0') + ':' + String(rem % 60).padStart(2, '0');
+        String(Math.floor(elapsed / 60)).padStart(2, '0') + ':' + String(elapsed % 60).padStart(2, '0');
 
       // Collision
       for (var k = 0; k < gObstacles.length; k++) {
         if (gCheckCollision(gObstacles[k])) {
           gRunning = false;
+          gLastScore = Math.floor(gTime);
           var obsType = gObstacles[k].type;
           document.getElementById('failIcon').textContent = '💥';
           document.getElementById('failTitle').textContent = obsType.label.toUpperCase() + '!';
           document.getElementById('failText').textContent = obsType.msg;
+          document.getElementById('failScore').textContent = gLastScore;
+          document.getElementById('playerName').value = '';
           var failImg = document.getElementById('failImg');
           if (obsType.img) {
             failImg.src = obsType.img;
@@ -2406,13 +2406,6 @@
           document.getElementById('gameFail').classList.remove('hidden');
           return;
         }
-      }
-
-      // Win
-      if (gTime >= gDuration) {
-        gRunning = false;
-        document.getElementById('gameWin').classList.remove('hidden');
-        return;
       }
 
       requestAnimationFrame(gGameLoop);
@@ -2427,12 +2420,11 @@
 
       document.getElementById('gameStart').classList.add('hidden');
       document.getElementById('gameFail').classList.add('hidden');
-      document.getElementById('gameWin').classList.add('hidden');
+      document.getElementById('gameLeader').classList.add('hidden');
       gResetPlayer();
       gObstacles = [];
-      gObstacleIndex = 0;
       gTime = 0;
-      gSchedule = gGenerateSchedule();
+      gLastSpawn = 0;
       gRunning = true;
       gLastFrame = performance.now();
       requestAnimationFrame(gGameLoop);
@@ -2443,7 +2435,34 @@
       document.getElementById('gameOverlay').classList.remove('active');
       document.getElementById('gameStart').classList.remove('hidden');
       document.getElementById('gameFail').classList.add('hidden');
-      document.getElementById('gameWin').classList.add('hidden');
+      document.getElementById('gameLeader').classList.add('hidden');
+    }
+
+    function gSubmitScore() {
+      var name = (document.getElementById('playerName').value || 'Гость').trim().slice(0, 20);
+      fetch(gLeaderUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, score: gLastScore })
+      }).catch(function(){});
+      gShowLeader();
+    }
+
+    function gShowLeader() {
+      document.getElementById('gameFail').classList.add('hidden');
+      document.getElementById('gameLeader').classList.remove('hidden');
+      document.getElementById('leaderList').innerHTML = 'Загрузка...';
+      fetch(gLeaderUrl)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.length) { document.getElementById('leaderList').innerHTML = 'Пока никого 🙈'; return; }
+          document.getElementById('leaderList').innerHTML = data.map(function(r, i) {
+            return '<div class="leader-row"><span>' + (i + 1) + '. ' + r.name + '</span><span>' + r.score + ' сек</span></div>';
+          }).join('');
+        })
+        .catch(function() {
+          document.getElementById('leaderList').innerHTML = 'Не удалось загрузить 😔';
+        });
     }
 
     document.getElementById('gameBtn').addEventListener('click', function() {
