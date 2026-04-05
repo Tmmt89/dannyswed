@@ -2355,6 +2355,15 @@
     var gNextSpawn = 1.5;
     var gLastScore = 0;
     var gLeaderUrl = 'https://script.google.com/macros/s/AKfycbyegVacvkwiCxAC9kyXy88fRVe2-LqU9TQRJYBqM9Gu3etVpZSvxIQoiitDF-nGdsKn/exec';
+    var gCollectibles = [];
+    var gNextCollectible = 3.5;
+    var gFloatingTexts = [];
+    var gCollectibleTypes = [
+      { emoji: '🔢', label: 'O909OO95', msg: 'Удачно взял Ольги!',           color: '#4fc97e' },
+      { emoji: '🚘', label: 'Чанган',   msg: 'Хапнул Чанган на кыргызском!', color: '#5bc8f5' },
+      { emoji: '🍽️', label: 'Плов',    msg: 'Хорошо порвался у паков!',      color: '#f5a623' },
+      { emoji: '💰', label: 'Rise',     msg: 'Получил премию в Rise!',        color: '#e040fb' },
+    ];
 
     // Sprites
     var gSprites = {};
@@ -2511,6 +2520,41 @@
       return pR > oL && pL < oR && pB > oT;
     }
 
+    function gDrawCollectible(col) {
+      var fs = Math.min(gCanvas.width, gCanvas.height) * 0.045;
+      gCtx.font = fs + 'px sans-serif';
+      var label = col.type.emoji + ' ' + col.type.label;
+      var tw = gCtx.measureText(label).width;
+      var pw = tw + fs * 1.2, ph = fs * 1.6;
+      var rx = col.x - pw / 2, ry = col.y - ph / 2;
+      gCtx.fillStyle = col.type.color;
+      gCtx.beginPath();
+      gCtx.roundRect(rx, ry, pw, ph, ph / 2);
+      gCtx.fill();
+      // pulse overlay
+      gCtx.globalAlpha = 0.2 + 0.15 * Math.sin(gTime * 5);
+      gCtx.fillStyle = '#fff';
+      gCtx.beginPath();
+      gCtx.roundRect(rx, ry, pw, ph, ph / 2);
+      gCtx.fill();
+      gCtx.globalAlpha = 1;
+      gCtx.fillStyle = '#fff';
+      gCtx.textAlign = 'center';
+      gCtx.textBaseline = 'middle';
+      gCtx.fillText(label, col.x, col.y);
+      col.drawW = pw; col.drawH = ph;
+    }
+
+    function gCheckCollect(col) {
+      if (!col.drawW) return false;
+      var gy = gPlayer.groundY + gPlayer.h;
+      var pL = gPlayer.x, pR = gPlayer.x + (gPlayer.drawW || gPlayer.w);
+      var pT = gy - (gPlayer.drawH || gPlayer.h * 1.8);
+      var cL = col.x - col.drawW / 2, cR = col.x + col.drawW / 2;
+      var cT = col.y - col.drawH / 2, cB = col.y + col.drawH / 2;
+      return pR > cL && pL < cR && gy > cT && pT < cB;
+    }
+
     function gGameLoop(ts) {
       if (!gRunning) return;
       var dt = Math.min((ts - gLastFrame) / 1000, 0.05);
@@ -2543,16 +2587,66 @@
         gNextSpawn = gTime + base * (0.45 + Math.random() * 1.1); // ×0.45…×1.55 variation
       }
 
-      // Move
+      // Collectible spawn (раз в 5–9 сек)
+      if (gTime >= gNextCollectible) {
+        var ctype = gCollectibleTypes[Math.floor(Math.random() * gCollectibleTypes.length)];
+        var minY = gPlayer.groundY * 0.25;
+        var maxY = gPlayer.groundY * 0.65;
+        gCollectibles.push({ x: gCanvas.width + 60, y: minY + Math.random() * (maxY - minY), type: ctype, drawW: 0, drawH: 0 });
+        gNextCollectible = gTime + 5 + Math.random() * 4;
+      }
+
+      // Move obstacles and collectibles
       for (var i = gObstacles.length - 1; i >= 0; i--) {
         gObstacles[i].x -= gSpeed * dt;
         if (gObstacles[i].x < -100) gObstacles.splice(i, 1);
+      }
+      for (var ci = gCollectibles.length - 1; ci >= 0; ci--) {
+        gCollectibles[ci].x -= gSpeed * dt * 0.9;
+        if (gCollectibles[ci].x < -120) gCollectibles.splice(ci, 1);
       }
 
       // Draw
       gDrawBackground();
       gDrawPlayer();
       for (var j = 0; j < gObstacles.length; j++) gDrawObstacle(gObstacles[j]);
+      for (var cj = 0; cj < gCollectibles.length; cj++) gDrawCollectible(gCollectibles[cj]);
+
+      // Floating texts
+      for (var fi = gFloatingTexts.length - 1; fi >= 0; fi--) {
+        var ft = gFloatingTexts[fi];
+        ft.y -= 55 * dt;
+        ft.alpha -= dt / 2;
+        if (ft.alpha <= 0) { gFloatingTexts.splice(fi, 1); continue; }
+        gCtx.globalAlpha = ft.alpha;
+        gCtx.font = 'bold ' + Math.min(gCanvas.width * 0.038, 20) + 'px sans-serif';
+        gCtx.fillStyle = ft.color || '#fff';
+        gCtx.textAlign = 'center';
+        gCtx.textBaseline = 'middle';
+        var ftLines = ft.text.split('\n');
+        for (var fl = 0; fl < ftLines.length; fl++) {
+          gCtx.fillText(ftLines[fl], ft.x, ft.y + fl * 24);
+        }
+        gCtx.globalAlpha = 1;
+      }
+
+      // Collect items
+      for (var ck = gCollectibles.length - 1; ck >= 0; ck--) {
+        if (gCheckCollect(gCollectibles[ck])) {
+          var cct = gCollectibles[ck].type;
+          var bonus = 2 + Math.floor(Math.random() * 4);
+          gTime += bonus;
+          gNextSpawn += bonus;
+          gNextCollectible += bonus;
+          gFloatingTexts.push({
+            x: gPlayer.x + (gPlayer.drawW || gPlayer.w) / 2,
+            y: gPlayer.groundY * 0.55,
+            text: '+' + bonus + ' сек!\n' + cct.msg,
+            alpha: 1, color: cct.color
+          });
+          gCollectibles.splice(ck, 1);
+        }
+      }
 
       // Timer — show elapsed time
       var elapsed = Math.floor(gTime);
@@ -2598,9 +2692,12 @@
       document.getElementById('gameLeader').classList.add('hidden');
       gResetPlayer();
       gObstacles = [];
+      gCollectibles = [];
+      gFloatingTexts = [];
       gTime = 0;
       gLastSpawn = 0;
       gNextSpawn = 1.5;
+      gNextCollectible = 3.5;
       gRunning = true;
       gLastFrame = performance.now();
       requestAnimationFrame(gGameLoop);
