@@ -847,9 +847,6 @@
         <div class="marker-label">КОРТЕЖ</div>
       </div>
 
-      <!-- Пасхалка: самолёт в аэропорту -->
-      <div class="easter-boat" style="left:24.5%; top:49.4%;" id="easterPlane" title=""></div>
-
       <!-- КОНВЕРТ — кнопка пожеланий -->
       <div class="envelope-btn" id="envelopeBtn">
         <div class="envelope-icon">💌</div>
@@ -920,30 +917,20 @@
         Позиции в % от картинки grooms_zone (464×576).
         Подправь через ?edit или вручную.
       -->
-      <div class="marker" style="left:59.2%; top:46.1%;" data-modal="modal-groom">
-        <div class="marker-btn">🏠</div>
-        <div class="marker-label">Д. ЖЕНИХА</div>
-      </div>
-
       <div class="marker marker--green" style="left:35.6%; top:49.9%;" data-modal="modal-restaurant">
         <div class="marker-btn">🍽️</div>
         <div class="marker-label">РЕСТОРАН</div>
       </div>
 
-      <div class="marker marker--green" style="left:63.1%; top:35%;" data-modal="modal-sbor">
-        <div class="marker-btn">🏁</div>
-        <div class="marker-label">СБОР</div>
-      </div>
-
-      <div class="marker marker--red" style="left:26.7%; top:22.9%;" data-modal="modal-mosque-groom">
-        <div class="marker-btn">🕌</div>
-        <div class="marker-label">МЕЧЕТЬ</div>
+      <div class="marker" style="left:63.1%; top:35%;" data-modal="modal-sbor">
+        <div class="marker-btn">🏠</div>
+        <div class="marker-label">СБОР У Д. ЖЕНИХА</div>
       </div>
 
       <!-- Пасхалка: кораблик на озере -->
       <div class="easter-boat" style="left:43.4%; top:47.3%;" id="easterBoat" title=""></div>
 
-      <!-- Пасхалка: секретный тап (3 раза) -->
+      <!-- Пасхалка: секретный тап -->
       <div class="secret-spot" style="left:15.7%; top:57.5%;" id="secretSpot"></div>
 
       <!-- Кнопка ВИКТОРИНА -->
@@ -1459,32 +1446,14 @@
       document.getElementById('modal-boat').classList.add('active');
     });
 
-    document.getElementById('easterPlane').addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('modal-plane').classList.add('active');
-    });
 
     /* ═══════════════════════════════════════
        EASTER EGG — SECRET TRIPLE TAP
        ═══════════════════════════════════════ */
-    (function() {
-      let tapCount = 0;
-      let tapTimer = null;
-      const spot = document.getElementById('secretSpot');
-
-      spot.addEventListener('click', (e) => {
-        e.stopPropagation();
-        tapCount++;
-
-        clearTimeout(tapTimer);
-        tapTimer = setTimeout(() => { tapCount = 0; }, 800);
-
-        if (tapCount >= 3) {
-          tapCount = 0;
-          document.getElementById('modal-secret').classList.add('active');
-        }
-      });
-    })();
+    document.getElementById('secretSpot').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('modal-secret').classList.add('active');
+    });
 
     /* ═══════════════════════════════════════
        QUIZ — "Знаешь ли ты Дени?"
