@@ -778,12 +778,12 @@
       font-size: 20px;
       pointer-events: none;
       z-index: 999;
-      animation: fly-away 0.8s ease-out forwards;
+      animation: fly-away 1s ease-out forwards;
     }
 
     @keyframes fly-away {
-      0% { opacity: 1; transform: translate(0, 0) scale(1); }
-      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3); }
+      0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.4) rotate(360deg); }
     }
 
     .zasada-success {
@@ -1586,19 +1586,27 @@
       btn.addEventListener('click', function(e) {
         payCount++;
 
-        // Spawn flying money
-        for (let i = 0; i < 6; i++) {
+        // Spawn flying money from button center
+        const btnRect = btn.getBoundingClientRect();
+        const parentRect = btn.parentElement.getBoundingClientRect();
+        const cx = btnRect.left - parentRect.left + btnRect.width / 2;
+        const cy = btnRect.top - parentRect.top + btnRect.height / 2;
+
+        for (let i = 0; i < 18; i++) {
           const m = document.createElement('span');
           m.className = 'money-fly';
           m.textContent = moneyEmojis[Math.floor(Math.random() * moneyEmojis.length)];
           const angle = Math.random() * Math.PI * 2;
-          const dist = 60 + Math.random() * 80;
+          const dist = 80 + Math.random() * 140;
           m.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
           m.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-          m.style.left = e.offsetX + 'px';
-          m.style.top = e.offsetY + 'px';
+          m.style.left = cx + 'px';
+          m.style.top = cy + 'px';
+          const delay = Math.random() * 150;
+          m.style.animationDelay = delay + 'ms';
+          btn.parentElement.style.position = 'relative';
           btn.parentElement.appendChild(m);
-          setTimeout(() => m.remove(), 800);
+          setTimeout(() => m.remove(), 1000 + delay);
         }
 
         const remaining = 3 - payCount;
