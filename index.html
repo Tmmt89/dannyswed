@@ -1915,297 +1915,279 @@
         '</div>';
     }
     /* ═══════════════════════════════════════
-       MINI-GAME: КОРТЕЖ
+       MINI-GAME: КОРТЕЖ (все переменные глобальные)
        ═══════════════════════════════════════ */
-    {
-      const canvas = document.getElementById('gameCanvas');
-      const ctx = canvas.getContext('2d');
-      const wrap = document.getElementById('gameWrap');
+    var gCanvas = document.getElementById('gameCanvas');
+    var gCtx = gCanvas.getContext('2d');
+    var gWrap = document.getElementById('gameWrap');
+    var gRunning = false;
+    var gTime = 0;
+    var gDuration = 25;
+    var gLastFrame = 0;
+    var gPlayer = null;
+    var gObstacles = [];
+    var gObstacleIndex = 0;
+    var gSpeed = 0;
+    var gChar = 'zurab';
+    var gSchedule = [];
+    var gHolding = false;
 
-      let gameRunning = false;
-      let gameTime = 0;
-      let gameDuration = 25;
-      let lastFrame = 0;
-      let player, obstacles, obstacleIndex, speed;
-      let selectedChar = 'zurab';
+    // Sprites
+    var gSprites = {};
+    var gSpriteFiles = {
+      zurab: 'game_zurab_sm.png',
+      salambek: 'game_salambek_sm.png',
+      police: 'game_police_sm.png',
+      stop: 'game_stop_sign_sm.png',
+      traffic: 'game_traffic_lights_sm.png',
+      granddad: 'game_granddad_sm.png'
+    };
+    for (var gk in gSpriteFiles) {
+      var gImg = new Image();
+      gImg.src = gSpriteFiles[gk];
+      gSprites[gk] = gImg;
+    }
 
-      // Load sprites
-      const sprites = {};
-      const spriteFiles = {
-        zurab: 'game_zurab_sm.png',
-        salambek: 'game_salambek_sm.png',
-        police: 'game_police_sm.png',
-        stop: 'game_stop_sign_sm.png',
-        traffic: 'game_traffic_lights_sm.png',
-        granddad: 'game_granddad_sm.png'
+    var gObstacleTypes = [
+      { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!' },
+      { sprite: 'police', label: 'ДПС', msg: 'Ты выехал на встречку и попал на лишение!' },
+      { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
+      { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал дядя!' }
+    ];
+
+    function gGenerateSchedule() {
+      var s = [];
+      var t = 1.5 + Math.random() * 0.5;
+      for (var i = 0; i < 14; i++) {
+        s.push({ time: t, type: gObstacleTypes[Math.floor(Math.random() * gObstacleTypes.length)] });
+        t += 0.8 + Math.random() * 1.7;
+        if (t > gDuration - 1) break;
+      }
+      return s;
+    }
+
+    function gResize() {
+      gCanvas.width = gWrap.clientWidth * 2;
+      gCanvas.height = gWrap.clientHeight * 2;
+    }
+
+    function gResetPlayer() {
+      gResize();
+      gPlayer = {
+        x: gCanvas.width * 0.08,
+        w: gCanvas.width * 0.16,
+        h: gCanvas.width * 0.09,
+        y: gCanvas.height * 0.68,
+        vy: 0,
+        grounded: true,
+        groundY: gCanvas.height * 0.68,
+        drawW: 0,
+        drawH: 0
       };
-      for (const [key, src] of Object.entries(spriteFiles)) {
-        const img = new Image();
-        img.src = src;
-        sprites[key] = img;
+    }
+
+    // Dino-style jump: hold = higher jump
+    function gJump() {
+      if (!gRunning || !gPlayer) return;
+      if (gPlayer.grounded) {
+        gPlayer.vy = -gCanvas.height * 0.032;
+        gPlayer.grounded = false;
+        gHolding = true;
       }
+    }
 
-      // Obstacle types
-      const obstacleTypes = [
-        { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!' },
-        { sprite: 'police', label: 'ДПС', msg: 'Ты выехал на встречку и попал на лишение!' },
-        { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
-        { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал дядя!' }
-      ];
+    function gJumpRelease() {
+      gHolding = false;
+      // Cut jump short if still going up
+      if (gPlayer && gPlayer.vy < -gCanvas.height * 0.01) {
+        gPlayer.vy = -gCanvas.height * 0.01;
+      }
+    }
 
-      // Obstacle schedule: 14 obstacles over 25 seconds, random gaps
-      function generateSchedule() {
-        const schedule = [];
-        const count = 14;
-        let t = 1.5 + Math.random() * 0.5; // first obstacle at ~1.5-2s
-        for (let i = 0; i < count; i++) {
-          schedule.push({
-            time: t,
-            type: obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)]
-          });
-          // Random gap between 0.8s and 2.5s
-          t += 0.8 + Math.random() * 1.7;
-          // Make sure we don't exceed game duration
-          if (t > gameDuration - 1) break;
+    function gDrawGround() {
+      var gy = gPlayer.groundY + gPlayer.h;
+      gCtx.fillStyle = '#8B7355';
+      gCtx.fillRect(0, gy, gCanvas.width, gCanvas.height - gy);
+      gCtx.strokeStyle = '#6B4226';
+      gCtx.lineWidth = 3;
+      gCtx.beginPath();
+      gCtx.moveTo(0, gy);
+      gCtx.lineTo(gCanvas.width, gy);
+      gCtx.stroke();
+      gCtx.fillStyle = '#A0926B';
+      var mw = 40;
+      var off = (gTime * gSpeed * 2) % (mw * 2);
+      for (var x = -off; x < gCanvas.width; x += mw * 2) {
+        gCtx.fillRect(x, gy + 15, mw, 4);
+      }
+    }
+
+    function gDrawSky() {
+      var grad = gCtx.createLinearGradient(0, 0, 0, gPlayer.groundY);
+      grad.addColorStop(0, '#87CEEB');
+      grad.addColorStop(1, '#B0E0E6');
+      gCtx.fillStyle = grad;
+      gCtx.fillRect(0, 0, gCanvas.width, gPlayer.groundY + gPlayer.h);
+    }
+
+    function gDrawPlayer() {
+      var isZ = gChar === 'zurab';
+      var spr = gSprites[isZ ? 'zurab' : 'salambek'];
+      var h = gPlayer.h * 1.8;
+      var w = spr.naturalWidth ? (h * spr.naturalWidth / spr.naturalHeight) : gPlayer.w;
+      if (spr.complete && spr.naturalWidth) {
+        gCtx.drawImage(spr, gPlayer.x, gPlayer.y - h * 0.3, w, h);
+      }
+      gCtx.fillStyle = '#fff';
+      gCtx.font = 'bold ' + (h * 0.18) + 'px sans-serif';
+      gCtx.textAlign = 'center';
+      gCtx.textBaseline = 'bottom';
+      gCtx.fillText(isZ ? 'Зураб' : 'Саламбек', gPlayer.x + w / 2, gPlayer.y - h * 0.35);
+      gPlayer.drawW = w;
+      gPlayer.drawH = h;
+    }
+
+    function gDrawObstacle(obs) {
+      var spr = gSprites[obs.type.sprite];
+      var oh = gCanvas.height * 0.13;
+      var ow = spr.naturalWidth ? (oh * spr.naturalWidth / spr.naturalHeight) : oh * 0.6;
+      var gy = gPlayer.groundY + gPlayer.h;
+      if (spr.complete && spr.naturalWidth) {
+        gCtx.drawImage(spr, obs.x - ow / 2, gy - oh, ow, oh);
+      }
+      obs.drawW = ow;
+      obs.drawH = oh;
+    }
+
+    function gCheckCollision(obs) {
+      var ow = obs.drawW || gCanvas.height * 0.1;
+      var oh = obs.drawH || gCanvas.height * 0.13;
+      var gy = gPlayer.groundY + gPlayer.h;
+      var oL = obs.x - ow * 0.3;
+      var oR = obs.x + ow * 0.3;
+      var oT = gy - oh;
+      var pH = gPlayer.drawH || gPlayer.h * 1.8;
+      var pW = gPlayer.drawW || gPlayer.w;
+      var pL = gPlayer.x;
+      var pR = gPlayer.x + pW;
+      var pB = gPlayer.y - pH * 0.3 + pH;
+      return pR > oL && pL < oR && pB > oT;
+    }
+
+    function gGameLoop(ts) {
+      if (!gRunning) return;
+      var dt = Math.min((ts - gLastFrame) / 1000, 0.05);
+      gLastFrame = ts;
+      gTime += dt;
+      gResize();
+      gSpeed = gCanvas.width * 0.35;
+
+      // Gravity — stronger when not holding (Dino-style)
+      var gravity = gCanvas.height * 0.065 * dt * 60;
+      if (!gHolding && gPlayer.vy < 0) gravity *= 2.5; // fast fall when released early
+
+      if (!gPlayer.grounded) {
+        gPlayer.vy += gravity;
+        gPlayer.y += gPlayer.vy;
+        if (gPlayer.y >= gPlayer.groundY) {
+          gPlayer.y = gPlayer.groundY;
+          gPlayer.vy = 0;
+          gPlayer.grounded = true;
+          gHolding = false;
         }
-        return schedule;
       }
 
-      let schedule = [];
-
-      function resize() {
-        canvas.width = wrap.clientWidth * 2;
-        canvas.height = wrap.clientHeight * 2;
+      // Spawn
+      while (gObstacleIndex < gSchedule.length && gSchedule[gObstacleIndex].time <= gTime) {
+        gObstacles.push({ x: gCanvas.width + 50, type: gSchedule[gObstacleIndex].type });
+        gObstacleIndex++;
       }
 
-      // Player
-      function resetPlayer() {
-        player = {
-          x: canvas.width * 0.08,
-          w: canvas.width * 0.16,
-          h: canvas.width * 0.09,
-          y: 0,
-          vy: 0,
-          grounded: true
-        };
-        player.groundY = canvas.height * 0.68;
-        player.y = player.groundY;
-      }
-
-      function jump() {
-        if (!gameRunning) return;
-        if (player.grounded) {
-          player.vy = -canvas.height * 0.035;
-          player.grounded = false;
-        }
+      // Move
+      for (var i = gObstacles.length - 1; i >= 0; i--) {
+        gObstacles[i].x -= gSpeed * dt;
+        if (gObstacles[i].x < -100) gObstacles.splice(i, 1);
       }
 
       // Draw
-      function drawGround() {
-        const gy = player.groundY + player.h;
-        ctx.fillStyle = '#8B7355';
-        ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
-        ctx.strokeStyle = '#6B4226';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, gy);
-        ctx.lineTo(canvas.width, gy);
-        ctx.stroke();
+      gDrawSky();
+      gDrawGround();
+      gDrawPlayer();
+      for (var j = 0; j < gObstacles.length; j++) gDrawObstacle(gObstacles[j]);
 
-        // Road markings
-        ctx.fillStyle = '#A0926B';
-        const markW = 40;
-        const offset = (gameTime * speed * 2) % (markW * 2);
-        for (let x = -offset; x < canvas.width; x += markW * 2) {
-          ctx.fillRect(x, gy + 15, markW, 4);
-        }
-      }
-
-      function drawSky() {
-        const grad = ctx.createLinearGradient(0, 0, 0, player.groundY);
-        grad.addColorStop(0, '#87CEEB');
-        grad.addColorStop(1, '#B0E0E6');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, player.groundY + player.h);
-      }
-
-      function drawPlayer() {
-        const isZurab = selectedChar === 'zurab';
-        const spr = sprites[isZurab ? 'zurab' : 'salambek'];
-        const h = player.h * 1.8;
-        const w = spr.naturalWidth ? (h * spr.naturalWidth / spr.naturalHeight) : player.w;
-
-        if (spr.complete && spr.naturalWidth) {
-          ctx.drawImage(spr, player.x, player.y - h * 0.3, w, h);
-        }
-
-        // Name above car
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold ' + (h * 0.18) + 'px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(isZurab ? 'Зураб' : 'Саламбек', player.x + w / 2, player.y - h * 0.35);
-
-        // Update player width for collision
-        player.drawW = w;
-        player.drawH = h;
-      }
-
-      function drawObstacle(obs) {
-        const spr = sprites[obs.type.sprite];
-        const obsH = canvas.height * 0.13;
-        const obsW = spr.naturalWidth ? (obsH * spr.naturalWidth / spr.naturalHeight) : obsH * 0.6;
-        const groundY = player.groundY + player.h;
-
-        if (spr.complete && spr.naturalWidth) {
-          ctx.drawImage(spr, obs.x - obsW / 2, groundY - obsH, obsW, obsH);
-        }
-
-        obs.drawW = obsW;
-        obs.drawH = obsH;
-      }
-
-      function drawTimer() {
-        const remaining = Math.max(0, gameDuration - gameTime);
-        const s = Math.ceil(remaining);
-        document.getElementById('gameTimer').textContent =
-          String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-      }
+      // Timer
+      var rem = Math.max(0, Math.ceil(gDuration - gTime));
+      document.getElementById('gameTimer').textContent =
+        String(Math.floor(rem / 60)).padStart(2, '0') + ':' + String(rem % 60).padStart(2, '0');
 
       // Collision
-      function checkCollision(obs) {
-        const obsW = obs.drawW || canvas.height * 0.1;
-        const obsH = obs.drawH || canvas.height * 0.18;
-        const groundY = player.groundY + player.h;
-        const obsLeft = obs.x - obsW / 2 + obsW * 0.2;
-        const obsRight = obs.x + obsW / 2 - obsW * 0.2;
-        const obsTop = groundY - obsH;
-
-        const pH = player.drawH || player.h * 2.2;
-        const pW = player.drawW || player.w;
-        const pLeft = player.x;
-        const pRight = player.x + pW;
-        const pTop = player.y - pH * 0.3;
-        const pBottom = player.y - pH * 0.3 + pH;
-
-        return pRight > obsLeft && pLeft < obsRight && pBottom > obsTop;
-      }
-
-      // Game loop
-      function gameLoop(ts) {
-        if (!gameRunning) return;
-
-        const dt = Math.min((ts - lastFrame) / 1000, 0.05);
-        lastFrame = ts;
-        gameTime += dt;
-
-        resize();
-        speed = canvas.width * 0.35;
-
-        // Physics
-        if (!player.grounded) {
-          player.vy += canvas.height * 0.06 * dt * 60;
-          player.y += player.vy;
-          if (player.y >= player.groundY) {
-            player.y = player.groundY;
-            player.vy = 0;
-            player.grounded = true;
-          }
-        }
-
-        // Spawn obstacles
-        while (obstacleIndex < schedule.length && schedule[obstacleIndex].time <= gameTime) {
-          obstacles.push({
-            x: canvas.width + 50,
-            type: schedule[obstacleIndex].type
-          });
-          obstacleIndex++;
-        }
-
-        // Move obstacles
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-          obstacles[i].x -= speed * dt;
-          if (obstacles[i].x < -100) obstacles.splice(i, 1);
-        }
-
-        // Draw
-        drawSky();
-        drawGround();
-        drawPlayer();
-        obstacles.forEach(o => drawObstacle(o));
-        drawTimer();
-
-        // Collision check
-        for (const obs of obstacles) {
-          if (checkCollision(obs)) {
-            gameOver(obs.type);
-            return;
-          }
-        }
-
-        // Win check
-        if (gameTime >= gameDuration) {
-          gameWin();
+      for (var k = 0; k < gObstacles.length; k++) {
+        if (gCheckCollision(gObstacles[k])) {
+          gRunning = false;
+          document.getElementById('failIcon').textContent = '💥';
+          document.getElementById('failTitle').textContent = gObstacles[k].type.label.toUpperCase() + '!';
+          document.getElementById('failText').textContent = gObstacles[k].type.msg;
+          document.getElementById('gameFail').classList.remove('hidden');
           return;
         }
-
-        requestAnimationFrame(gameLoop);
       }
 
-      function gameOver(type) {
-        gameRunning = false;
-        document.getElementById('failIcon').textContent = '💥';
-        document.getElementById('failTitle').textContent = type.label.toUpperCase() + '!';
-        document.getElementById('failText').textContent = type.msg;
-        document.getElementById('gameFail').classList.remove('hidden');
-      }
-
-      function gameWin() {
-        gameRunning = false;
+      // Win
+      if (gTime >= gDuration) {
+        gRunning = false;
         document.getElementById('gameWin').classList.remove('hidden');
+        return;
       }
 
-      window.startGame = function(char) {
-        if (char) selectedChar = char;
-        document.getElementById('gameStart').classList.add('hidden');
-        document.getElementById('gameFail').classList.add('hidden');
-        document.getElementById('gameWin').classList.add('hidden');
-
-        resize();
-        resetPlayer();
-        obstacles = [];
-        obstacleIndex = 0;
-        gameTime = 0;
-        schedule = generateSchedule();
-        gameRunning = true;
-        lastFrame = performance.now();
-        requestAnimationFrame(gameLoop);
-      };
-
-      window.closeGame = function() {
-        gameRunning = false;
-        document.getElementById('gameOverlay').classList.remove('active');
-        document.getElementById('gameStart').classList.remove('hidden');
-        document.getElementById('gameFail').classList.add('hidden');
-        document.getElementById('gameWin').classList.add('hidden');
-      };
-
-      document.getElementById('gameBtn').addEventListener('click', () => {
-        document.getElementById('gameOverlay').classList.add('active');
-      });
-
-      // Jump controls — максимально простые, на уровне document
-      document.addEventListener('click', () => jump());
-      document.addEventListener('touchstart', (e) => {
-        if (gameRunning) { e.preventDefault(); jump(); }
-      }, { passive: false });
-      document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' || e.code === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
-          e.preventDefault();
-          jump();
-        }
-      });
+      requestAnimationFrame(gGameLoop);
     }
+
+    function startGame(char) {
+      if (char) gChar = char;
+      document.getElementById('gameStart').classList.add('hidden');
+      document.getElementById('gameFail').classList.add('hidden');
+      document.getElementById('gameWin').classList.add('hidden');
+      gResetPlayer();
+      gObstacles = [];
+      gObstacleIndex = 0;
+      gTime = 0;
+      gSchedule = gGenerateSchedule();
+      gRunning = true;
+      gLastFrame = performance.now();
+      requestAnimationFrame(gGameLoop);
+    }
+
+    function closeGame() {
+      gRunning = false;
+      document.getElementById('gameOverlay').classList.remove('active');
+      document.getElementById('gameStart').classList.remove('hidden');
+      document.getElementById('gameFail').classList.add('hidden');
+      document.getElementById('gameWin').classList.add('hidden');
+    }
+
+    document.getElementById('gameBtn').addEventListener('click', function() {
+      document.getElementById('gameOverlay').classList.add('active');
+    });
+
+    // Input: click, touch, keyboard — Dino-style hold mechanics
+    document.addEventListener('mousedown', function() { gJump(); });
+    document.addEventListener('mouseup', function() { gJumpRelease(); });
+    document.addEventListener('touchstart', function(e) {
+      if (gRunning) e.preventDefault();
+      gJump();
+    }, { passive: false });
+    document.addEventListener('touchend', function() { gJumpRelease(); });
+    document.addEventListener('keydown', function(e) {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        gJump();
+      }
+    });
+    document.addEventListener('keyup', function(e) {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        gJumpRelease();
+      }
+    });
 
     /* ═══════════════════════════════════════
        EDIT MODE — открой ?edit в URL
