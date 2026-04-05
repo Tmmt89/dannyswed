@@ -959,7 +959,7 @@
     .game-msg.hidden { display: none; }
     .fail-img { width: 100%; max-width: 320px; border-radius: 10px; display: none; margin: 0 auto; }
     .fail-img.visible { display: block; }
-    .game-score-line { font-size: 18px; color: #f5c518; }
+    .game-score-line { font-size: 14px; color: #f5c518; }
     .game-name-input { width: 100%; max-width: 260px; padding: 10px 14px; font-family: inherit; font-size: 16px; border: 2px solid #f5c518; border-radius: 8px; background: rgba(0,0,0,0.6); color: #fff; text-align: center; }
     .game-name-input::placeholder { color: rgba(255,255,255,0.4); }
     .leader-list { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
@@ -972,14 +972,14 @@
     .game-msg-icon { font-size: 48px; }
     .game-msg-title {
       color: var(--gold);
-      font-size: 10px;
-      line-height: 2;
+      font-size: 14px;
+      line-height: 1.8;
     }
     .game-msg-text {
       color: var(--cream);
-      font-size: 7px;
-      line-height: 2.2;
-      max-width: 300px;
+      font-size: 12px;
+      line-height: 1.8;
+      max-width: 320px;
     }
     .game-msg .btn-nes { max-width: 250px; margin: 0 auto; }
 
@@ -2401,7 +2401,7 @@
       { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!', img: 'Traffic_jam.png' },
       { sprite: 'police', label: 'ДПС', msg: 'Ты нарушил сплошную и попал на лишение!', img: 'fine.png' },
       { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
-      { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал де ваш!' }
+      { sprite: 'granddad', label: 'Де ваш', msg: 'Ты беспределил на дороге, и тебя отругал де ваш!', img: 'reckless.png' }
     ];
 
     function gResize() {
