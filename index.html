@@ -549,7 +549,29 @@
       font-size: 7px;
       outline: none;
       resize: none;
+      -webkit-user-select: text;
+      user-select: text;
     }
+
+    .wish-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,215,0,0.1);
+    }
+    .wish-author { color: var(--gold); font-size: 7px; margin-bottom: 6px; }
+    .wish-text { color: var(--cream); font-size: 7px; line-height: 2; white-space: pre-wrap; }
+    .btn-read-wishes {
+      display: block; width: 100%;
+      padding: 12px;
+      background: none;
+      border: 2px solid var(--gold-dim);
+      color: var(--gold-dim);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .btn-read-wishes:active { border-color: var(--gold); color: var(--gold); }
+
     .envelope-form input:focus,
     .envelope-form textarea:focus {
       border-color: var(--gold);
@@ -1582,7 +1604,7 @@
       </div>
       <div class="modal-body" id="zasadaBody">
         <!-- Замени src на картинку засады когда будет -->
-        <img class="modal-img" loading="lazy" id="zasadaImg" src="zasada.jpg" alt="Засада" style="display:none;" onload="this.style.display='block'">
+        <img class="modal-img" id="zasadaImg" src="zasada.jpg" alt="Засада" style="display:none;" onload="this.style.display='block'">
         <div class="modal-text" id="zasadaText" style="text-align:center; font-size:8px;">
           Кортеж не успел выехать
           от дома невесты, как тут же
@@ -1614,7 +1636,7 @@
       </div>
       <div class="modal-body">
         <!-- Замени src на баннер Rise когда будет готов -->
-        <img class="modal-img" loading="lazy" src="rise_banner.jpg" alt="Rise English School" style="display:none;" id="riseBanner" onload="this.style.display='block'">
+        <img class="modal-img" src="rise_banner.jpg" alt="Rise English School" style="display:none;" id="riseBanner" onload="this.style.display='block'">
         <div class="modal-text" style="text-align:center; font-size:8px;">
           Кортеж свернул не туда
           и оказался в Лондоне.
@@ -2466,8 +2488,7 @@
             var isFirst = i === 0;
             var prefix = isFirst ? '👑 ' : (i + 1) + '. ';
             var cls = isFirst ? 'leader-row leader-row-first' : 'leader-row';
-            var suffix = isFirst ? ' — 2-е место в кортеже!' : '';
-            return '<div class="' + cls + '"><span>' + prefix + r.name + suffix + '</span><span>' + r.score + ' сек</span></div>';
+            return '<div class="' + cls + '"><span>' + prefix + r.name + '</span><span>' + r.score + ' сек</span></div>';
           }).join('');
         })
         .catch(function() {
