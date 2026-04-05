@@ -847,6 +847,12 @@
         <div class="marker-label">КОРТЕЖ</div>
       </div>
 
+      <!-- RISE — реклама -->
+      <div class="marker" style="left:80%; top:75%;" data-modal="modal-rise">
+        <div class="marker-btn" style="border-color:#4a90d9;">📚</div>
+        <div class="marker-label" style="border-color:#4a90d9;color:#4a90d9;">RISE</div>
+      </div>
+
       <!-- КОНВЕРТ — кнопка пожеланий -->
       <div class="envelope-btn" id="envelopeBtn">
         <div class="envelope-icon">💌</div>
@@ -1166,6 +1172,36 @@
           -->
           <button type="submit" class="btn-nes btn-send">📨 ОТПРАВИТЬ</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       RISE — РЕКЛАМА
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-rise">
+    <div class="modal">
+      <div class="modal-header" style="background:linear-gradient(135deg,#3a7bd5,#4a90d9);">
+        <div class="modal-header-icon">📚</div>
+        <div class="modal-header-text">
+          <h3 style="color:#fff;">RISE</h3>
+          <span class="modal-time" style="color:rgba(255,255,255,0.8);">English School</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- Замени src на баннер Rise когда будет готов -->
+        <img class="modal-img" src="rise_banner.jpg" alt="Rise English School" style="display:none;" id="riseBanner" onload="this.style.display='block'">
+        <div class="modal-text" style="text-align:center; font-size:8px;">
+          <span style="color:var(--gold); font-size:10px;">
+          Приходите к нам<br>
+          учить английский!</span>
+          <br><br>
+          Rise — школа английского
+          языка в Грозном.
+          <br><br>
+          <span class="note">Реклама</span>
+        </div>
+        <button class="btn-nes btn-close" onclick="closeModal(this)">ЗАКРЫТЬ</button>
       </div>
     </div>
   </div>
