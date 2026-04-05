@@ -1928,12 +1928,28 @@
       let player, obstacles, nextObstacle, obstacleIndex, speed;
       let selectedChar = 'zurab';
 
+      // Load sprites
+      const sprites = {};
+      const spriteFiles = {
+        zurab: 'game_zurab_sm.png',
+        salambek: 'game_salambek_sm.png',
+        police: 'game_police_sm.png',
+        stop: 'game_stop_sign_sm.png',
+        traffic: 'game_traffic_lights_sm.png',
+        granddad: 'game_granddad_sm.png'
+      };
+      for (const [key, src] of Object.entries(spriteFiles)) {
+        const img = new Image();
+        img.src = src;
+        sprites[key] = img;
+      }
+
       // Obstacle types
       const obstacleTypes = [
-        { emoji: '🛑', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!' },
-        { emoji: '👮', label: 'ДПС', msg: 'Ты выехал на встречку и попал на лишение!' },
-        { emoji: '🚦', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
-        { emoji: '👴', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал дядя!' }
+        { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!' },
+        { sprite: 'police', label: 'ДПС', msg: 'Ты выехал на встречку и попал на лишение!' },
+        { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
+        { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал дядя!' }
       ];
 
       // Obstacle schedule: 14 obstacles over 25 seconds
@@ -2009,57 +2025,39 @@
       }
 
       function drawPlayer() {
-        const x = player.x;
-        const y = player.y;
-        const w = player.w;
-        const h = player.h;
-
         const isZurab = selectedChar === 'zurab';
-        const bodyColor = isZurab ? '#1a1a1a' : '#c8a84e';
-        const roofColor = isZurab ? '#1a1a1a' : '#b8963e';
-        const windowColor = isZurab ? '#4488cc' : '#3a3a3a';
+        const spr = sprites[isZurab ? 'zurab' : 'salambek'];
+        const h = player.h * 2.2;
+        const w = spr.naturalWidth ? (h * spr.naturalWidth / spr.naturalHeight) : player.w;
 
-        // Car body
-        ctx.fillStyle = bodyColor;
-        ctx.fillRect(x, y, w, h);
-        // Roof
-        ctx.fillStyle = roofColor;
-        ctx.fillRect(x + w * 0.15, y - h * 0.5, w * 0.7, h * 0.55);
-        // Windows
-        ctx.fillStyle = windowColor;
-        ctx.fillRect(x + w * 0.2, y - h * 0.42, w * 0.25, h * 0.38);
-        ctx.fillRect(x + w * 0.5, y - h * 0.42, w * 0.25, h * 0.38);
-        // Wheels
-        ctx.fillStyle = '#333';
-        ctx.beginPath();
-        ctx.arc(x + w * 0.22, y + h, h * 0.25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x + w * 0.78, y + h, h * 0.25, 0, Math.PI * 2);
-        ctx.fill();
-        // Headlight
-        ctx.fillStyle = '#ffdd44';
-        ctx.fillRect(x + w - 4, y + h * 0.2, 4, h * 0.25);
+        if (spr.complete && spr.naturalWidth) {
+          ctx.drawImage(spr, player.x, player.y - h * 0.3, w, h);
+        }
 
         // Name above car
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold ' + (h * 0.4) + 'px sans-serif';
+        ctx.font = 'bold ' + (h * 0.18) + 'px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(isZurab ? 'Зураб' : 'Саламбек', x + w / 2, y - h * 0.6);
+        ctx.fillText(isZurab ? 'Зураб' : 'Саламбек', player.x + w / 2, player.y - h * 0.35);
+
+        // Update player width for collision
+        player.drawW = w;
+        player.drawH = h;
       }
 
       function drawObstacle(obs) {
-        const size = canvas.width * 0.06;
-        ctx.font = size + 'px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(obs.type.emoji, obs.x, player.groundY + player.h);
-        // Small label
-        ctx.font = 'bold ' + (size * 0.25) + 'px sans-serif';
-        ctx.fillStyle = '#fff';
-        ctx.textBaseline = 'top';
-        ctx.fillText(obs.type.label, obs.x, player.groundY + player.h + 4);
+        const spr = sprites[obs.type.sprite];
+        const obsH = canvas.height * 0.18;
+        const obsW = spr.naturalWidth ? (obsH * spr.naturalWidth / spr.naturalHeight) : obsH * 0.6;
+        const groundY = player.groundY + player.h;
+
+        if (spr.complete && spr.naturalWidth) {
+          ctx.drawImage(spr, obs.x - obsW / 2, groundY - obsH, obsW, obsH);
+        }
+
+        obs.drawW = obsW;
+        obs.drawH = obsH;
       }
 
       function drawTimer() {
@@ -2071,15 +2069,19 @@
 
       // Collision
       function checkCollision(obs) {
-        const obsSize = canvas.width * 0.04;
-        const obsLeft = obs.x - obsSize;
-        const obsRight = obs.x + obsSize;
-        const obsTop = player.groundY + player.h - canvas.width * 0.06;
+        const obsW = obs.drawW || canvas.height * 0.1;
+        const obsH = obs.drawH || canvas.height * 0.18;
+        const groundY = player.groundY + player.h;
+        const obsLeft = obs.x - obsW / 2 + obsW * 0.2;
+        const obsRight = obs.x + obsW / 2 - obsW * 0.2;
+        const obsTop = groundY - obsH;
 
+        const pH = player.drawH || player.h * 2.2;
+        const pW = player.drawW || player.w;
         const pLeft = player.x;
-        const pRight = player.x + player.w;
-        const pTop = player.y - player.h * 0.5;
-        const pBottom = player.y + player.h;
+        const pRight = player.x + pW;
+        const pTop = player.y - pH * 0.3;
+        const pBottom = player.y - pH * 0.3 + pH;
 
         return pRight > obsLeft && pLeft < obsRight && pBottom > obsTop;
       }
