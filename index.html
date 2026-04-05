@@ -1346,7 +1346,7 @@
         <img class="modal-img" src="cars_in_poselok.jpg" alt="Сбор">
         <div class="modal-text">
           Собираемся у дома жениха.
-          Кортеж выезжает в 11:50.
+          Кортеж выезжает в 11:00.
           Просьба не опаздывать!
           <span class="address">📍 Алды, ул. Цимлянская, д. 28</span>
           <span class="note">Приезжайте заранее</span>
@@ -1388,7 +1388,7 @@
         <div class="modal-header-icon">🚗</div>
         <div class="modal-header-text">
           <h3>КОРТЕЖ</h3>
-          <span class="modal-time">11:50</span>
+          <span class="modal-time">11:00</span>
         </div>
       </div>
       <div class="modal-body">
@@ -1543,12 +1543,6 @@
         </div>
       </div>
       <div class="modal-body" id="envelopeBody">
-        <div style="padding: 16px 16px 0; color: var(--cream); font-size: 7px; line-height: 2.4; border-bottom: 2px solid var(--gold-dim); margin-bottom: 4px;">
-          Дени, в этот день хочется сказать тебе самое главное.<br><br>
-          Ты создал семью — и это не просто красивые слова. Это новая глава, в которой каждый день будет иметь смысл.<br><br>
-          Пусть ваш дом будет тёплым, а любовь — крепче любых испытаний. Пусть вы смеётесь вместе чаще, чем спорите, и выбираете друг друга каждый новый день.<br><br>
-          С любовью и от всего сердца — поздравляем!
-        </div>
         <form class="envelope-form" id="wishForm">
           <label>ТВОЁ ИМЯ</label>
           <input type="text" name="name" placeholder="Как тебя зовут?" required>
@@ -2268,16 +2262,14 @@
         var bgW = gBgImg.naturalWidth, bgH = gBgImg.naturalHeight;
         var scale = groundY / bgH;
         var drawW = bgW * scale;
-        var scrollSpeed = drawW / 10;
-        var offset = (gTime * scrollSpeed) % drawW;
-        var x1 = -offset, x2 = x1 + drawW;
+        // Parallax: bg scrolls at 1/15 of car speed — never loops in 40s
+        var offset = Math.min(gTime * (gSpeed / 15), drawW - W);
+        offset = Math.max(0, offset);
         gCtx.save();
         gCtx.beginPath();
         gCtx.rect(0, 0, W, groundY);
         gCtx.clip();
-        gCtx.drawImage(gBgImg, x1, 0, drawW, groundY);
-        gCtx.drawImage(gBgImg, x2, 0, drawW, groundY);
-        if (x2 + drawW < W) gCtx.drawImage(gBgImg, x2 + drawW, 0, drawW, groundY);
+        gCtx.drawImage(gBgImg, -offset, 0, drawW, groundY);
         // soft dark fade at bottom so photo blends into grass
         var fade = gCtx.createLinearGradient(0, groundY * 0.7, 0, groundY);
         fade.addColorStop(0, 'rgba(0,0,0,0)');
@@ -2694,12 +2686,11 @@
        ═══════════════════════════════════════ */
     (function () {
       const events = [
-        { time: '10:30',       icon: '🏁', name: 'СБОР ГОСТЕЙ',      desc: 'Собираемся у дома жениха',           addr: '📍 Алды, ул. Цимлянская, д. 28' },
-        { time: '11:50',       icon: '🚗', name: 'КОРТЕЖ',            desc: 'Выезд в сторону дома невесты',       addr: '📍 Маршрут ~25 мин' },
-        { time: '12:30',       icon: '🕌', name: 'НАМАЗ',             desc: 'Остановка для полуденного намаза',   addr: '📍 Мечеть по маршруту' },
-        { time: '12:00–13:00', icon: '💒', name: 'ДОМ НЕВЕСТЫ',       desc: 'Прибытие кортежа, вывод невесты',    addr: '📍 ул. Лермонтова, 194' },
-        { time: '13:30',       icon: '🍽️', name: 'РЕСТОРАН «ПАРУС»',  desc: 'Кортеж с невестой прибывает',        addr: '📍 ул. Мамсурова, 6Б' },
-        { time: '14:00',       icon: '🎉', name: 'БЗ «ПАРУС»',        desc: 'Торжественный приём гостей',         addr: '📍 БЗ «Парус»' },
+        { time: '10:30', icon: '🏁', name: 'СБОР ГОСТЕЙ',          desc: 'Сбор гостей и выезд за невестой',   addr: '📍 Алды, ул. Цимлянская, д. 28' },
+        { time: '11:00', icon: '🚗', name: 'ВЫЕЗД ЗА НЕВЕСТОЙ',    desc: 'Кортеж выезжает за невестой',       addr: '📍 Маршрут ~1 час' },
+        { time: '12:00', icon: '💒', name: 'ДОМ НЕВЕСТЫ',          desc: 'Прибытие к дому невесты',           addr: '📍 ул. Лермонтова, 194' },
+        { time: '13:00', icon: '🚙', name: 'ОТБЫТИЕ В РЕСТОРАН',   desc: 'Кортеж выезжает из дома невесты',   addr: '📍 Маршрут ~30 мин' },
+        { time: '13:30', icon: '🍽️', name: 'РЕСТОРАН «ПАРУС»',     desc: 'Прибытие в ресторан «Парус»',       addr: '📍 ул. Мамсурова, 6Б' },
       ];
 
       const sheet    = document.getElementById('timelineSheet');
