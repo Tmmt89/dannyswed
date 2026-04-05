@@ -2010,33 +2010,26 @@
 
     function gDrawBackground() {
       if (!gBgImg.complete || !gBgImg.naturalWidth) {
-        // Fallback: simple sky + ground
-        var grad = gCtx.createLinearGradient(0, 0, 0, gPlayer.groundY);
-        grad.addColorStop(0, '#87CEEB');
-        grad.addColorStop(1, '#B0E0E6');
-        gCtx.fillStyle = grad;
+        gCtx.fillStyle = '#87CEEB';
         gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
         return;
       }
 
-      // Panorama scrolls from right to left over gDuration seconds
+      // Draw panorama preserving original proportions
+      // Scale height to fill canvas height
       var bgW = gBgImg.naturalWidth;
       var bgH = gBgImg.naturalHeight;
+      var scale = gCanvas.height / bgH;
+      var drawH = gCanvas.height;
+      var drawW = bgW * scale;
 
-      // How much of the panorama to show: canvas maps to a portion of bgW
-      // At t=0 we see the left edge, at t=gDuration we see the right edge
-      var visibleW = bgW * (gCanvas.width / gCanvas.height) * (bgH / bgW) * 0.5;
-      if (visibleW > bgW * 0.5) visibleW = bgW * 0.5;
-
-      var scrollRange = bgW - visibleW;
+      // Scroll: at t=0 show left edge, at t=gDuration show right edge
+      var maxScroll = drawW - gCanvas.width;
+      if (maxScroll < 0) maxScroll = 0;
       var progress = Math.min(gTime / gDuration, 1);
-      var srcX = progress * scrollRange;
+      var scrollX = -progress * maxScroll;
 
-      // Draw panorama filling the entire canvas
-      gCtx.drawImage(gBgImg,
-        srcX, 0, visibleW, bgH,
-        0, 0, gCanvas.width, gCanvas.height
-      );
+      gCtx.drawImage(gBgImg, scrollX, 0, drawW, drawH);
     }
 
     function gDrawPlayer() {
