@@ -1995,7 +1995,7 @@
     function gJump() {
       if (!gRunning || !gPlayer || !gCanvas) return;
       if (gPlayer.grounded) {
-        gPlayer.vy = -gCanvas.height * 0.032;
+        gPlayer.vy = -gCanvas.height * 1.5;
         gPlayer.grounded = false;
         gHolding = true;
       }
@@ -2004,8 +2004,8 @@
     function gJumpRelease() {
       gHolding = false;
       // Cut jump short if still going up
-      if (gPlayer && gPlayer.vy < -gCanvas.height * 0.01) {
-        gPlayer.vy = -gCanvas.height * 0.01;
+      if (gPlayer && gPlayer.vy < -gCanvas.height * 0.3) {
+        gPlayer.vy = -gCanvas.height * 0.3;
       }
     }
 
@@ -2085,13 +2085,13 @@
       gResize();
       gSpeed = gCanvas.width * 0.35;
 
-      // Gravity — stronger when not holding (Dino-style)
-      var gravity = gCanvas.height * 0.065 * dt * 60;
-      if (!gHolding && gPlayer.vy < 0) gravity *= 2.5; // fast fall when released early
+      // Gravity — all units per second (consistent with jump velocity)
+      var gravity = gCanvas.height * 4.0;
+      if (!gHolding && gPlayer.vy < 0) gravity *= 2.5;
 
       if (!gPlayer.grounded) {
-        gPlayer.vy += gravity;
-        gPlayer.y += gPlayer.vy;
+        gPlayer.vy += gravity * dt;
+        gPlayer.y += gPlayer.vy * dt;
         if (gPlayer.y >= gPlayer.groundY) {
           gPlayer.y = gPlayer.groundY;
           gPlayer.vy = 0;
