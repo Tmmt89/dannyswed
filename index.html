@@ -2194,19 +2194,16 @@
         document.getElementById('gameOverlay').classList.add('active');
       });
 
-      // Jump controls
-      // Jump on tap anywhere on the overlay (not just gameWrap)
-      document.getElementById('gameOverlay').addEventListener('click', (e) => {
-        if (e.target.closest('.game-msg') || e.target.closest('button') || e.target.closest('.game-close')) return;
-        jump();
-      });
-      document.getElementById('gameOverlay').addEventListener('touchstart', (e) => {
-        if (e.target.closest('.game-msg') || e.target.closest('button') || e.target.closest('.game-close')) return;
-        e.preventDefault();
-        jump();
+      // Jump controls — максимально простые, на уровне document
+      document.addEventListener('click', () => jump());
+      document.addEventListener('touchstart', (e) => {
+        if (gameRunning) { e.preventDefault(); jump(); }
       }, { passive: false });
       document.addEventListener('keydown', (e) => {
-        if ((e.code === 'Space' || e.code === 'ArrowUp' || e.key === 'w' || e.key === 'W') && gameRunning) { e.preventDefault(); jump(); }
+        if (e.code === 'Space' || e.code === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+          e.preventDefault();
+          jump();
+        }
       });
     })();
 
