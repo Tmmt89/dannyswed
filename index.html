@@ -1917,9 +1917,9 @@
     /* ═══════════════════════════════════════
        MINI-GAME: КОРТЕЖ (все переменные глобальные)
        ═══════════════════════════════════════ */
-    var gCanvas = document.getElementById('gameCanvas');
-    var gCtx = gCanvas.getContext('2d');
-    var gWrap = document.getElementById('gameWrap');
+    var gCanvas = null;
+    var gCtx = null;
+    var gWrap = null;
     var gRunning = false;
     var gTime = 0;
     var gDuration = 25;
@@ -1971,6 +1971,7 @@
     }
 
     function gResize() {
+      if (!gCanvas || !gWrap) return;
       gCanvas.width = gWrap.clientWidth * 2;
       gCanvas.height = gWrap.clientHeight * 2;
     }
@@ -1992,7 +1993,7 @@
 
     // Dino-style jump: hold = higher jump
     function gJump() {
-      if (!gRunning || !gPlayer) return;
+      if (!gRunning || !gPlayer || !gCanvas) return;
       if (gPlayer.grounded) {
         gPlayer.vy = -gCanvas.height * 0.032;
         gPlayer.grounded = false;
@@ -2145,6 +2146,11 @@
 
     function startGame(char) {
       if (char) gChar = char;
+      // Init canvas on first run (it's display:none before opening)
+      gCanvas = document.getElementById('gameCanvas');
+      gCtx = gCanvas.getContext('2d');
+      gWrap = document.getElementById('gameWrap');
+
       document.getElementById('gameStart').classList.add('hidden');
       document.getElementById('gameFail').classList.add('hidden');
       document.getElementById('gameWin').classList.add('hidden');
