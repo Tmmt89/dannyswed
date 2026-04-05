@@ -989,6 +989,139 @@
       width: 0%; transition: width 0.3s;
       box-shadow: inset -2px -2px 0 var(--green-dark), inset 2px 2px 0 #58d68d;
     }
+
+    /* ═══════════════════════════════════════
+       TIMELINE BOTTOM SHEET
+       ═══════════════════════════════════════ */
+    .hud-timeline-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px;
+      width: 34px; height: 34px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hud-timeline-btn:active { transform: translateY(-50%) scale(0.9); }
+
+    .timeline-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 179;
+      background: rgba(0,0,0,0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .timeline-backdrop.active { opacity: 1; pointer-events: all; }
+
+    .timeline-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 180;
+      background: var(--dark);
+      border-top: 3px solid var(--gold);
+      border-left: 3px solid var(--gold);
+      border-right: 3px solid var(--gold);
+      max-height: 72vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
+    }
+    .timeline-sheet.open { transform: translateY(0); }
+
+    .timeline-handle {
+      text-align: center;
+      padding: 10px 0 4px;
+      cursor: pointer;
+    }
+    .timeline-handle::before {
+      content: '';
+      display: inline-block;
+      width: 40px; height: 4px;
+      background: var(--gold-dim);
+      border-radius: 2px;
+    }
+    .timeline-sheet-header {
+      padding: 4px 16px 12px;
+      color: var(--gold);
+      font-size: 9px;
+      border-bottom: 2px solid var(--gold-dim);
+      letter-spacing: 1px;
+    }
+    .timeline-list { padding: 4px 0 40px; }
+
+    .timeline-item {
+      display: flex;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,215,0,0.07);
+      transition: background 0.15s;
+    }
+    .timeline-item.tl-active { background: rgba(255,215,0,0.06); }
+
+    .tl-time {
+      width: 48px;
+      flex-shrink: 0;
+      color: var(--gold);
+      font-size: 6px;
+      line-height: 2;
+      text-align: right;
+      padding-right: 10px;
+      padding-top: 2px;
+    }
+    .tl-spine {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 18px;
+      flex-shrink: 0;
+    }
+    .tl-dot {
+      width: 10px; height: 10px;
+      border: 2px solid var(--gold);
+      background: var(--dark);
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .timeline-item.tl-active .tl-dot { background: var(--gold); }
+    .tl-line {
+      flex: 1;
+      width: 2px;
+      background: var(--gold-dim);
+      opacity: 0.25;
+      min-height: 16px;
+      margin: 3px 0;
+    }
+    .timeline-item:last-child .tl-line { display: none; }
+
+    .tl-body { flex: 1; padding-left: 10px; }
+    .tl-icon { font-size: 16px; margin-bottom: 3px; }
+    .tl-name { color: var(--cream); font-size: 7px; line-height: 1.8; }
+    .tl-desc {
+      color: #7f8c8d;
+      font-size: 6px;
+      line-height: 1.8;
+      margin-top: 3px;
+      display: none;
+    }
+    .tl-addr {
+      color: var(--gold);
+      font-size: 6px;
+      line-height: 1.8;
+      margin-top: 3px;
+      display: none;
+    }
+    .timeline-item.tl-active .tl-desc,
+    .timeline-item.tl-active .tl-addr { display: block; }
   </style>
 </head>
 <body>
@@ -1038,6 +1171,14 @@
       <span>6 АПРЕЛЯ 2026 — ГРОЗНЫЙ</span>
       <div class="countdown" id="countdown"></div>
     </div>
+    <button class="hud-timeline-btn" id="timelineBtn">📋</button>
+  </div>
+
+  <div class="timeline-backdrop" id="timelineBackdrop"></div>
+  <div class="timeline-sheet" id="timelineSheet">
+    <div class="timeline-handle" id="timelineHandle"></div>
+    <div class="timeline-sheet-header">📋 ПЛАН ДНЯ</div>
+    <div class="timeline-list" id="timelineList"></div>
   </div>
 
   <div class="hud-bottom" id="hudBottom">
@@ -2051,6 +2192,8 @@
       gImg.src = gSpriteFiles[gk];
       gSprites[gk] = gImg;
     }
+    var gBgImg = new Image();
+    gBgImg.src = 'game_bg.jpg';
 
     var gObstacleTypes = [
       { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!' },
@@ -2112,45 +2255,44 @@
     function gDrawBackground() {
       var W = gCanvas.width, H = gCanvas.height;
       var groundY = gPlayer.groundY + gPlayer.h;
+      var grassH = H * 0.05;
 
-      // Sky gradient
-      var skyGrad = gCtx.createLinearGradient(0, 0, 0, groundY);
-      skyGrad.addColorStop(0, '#5BA3D9');
-      skyGrad.addColorStop(1, '#C8E8F5');
-      gCtx.fillStyle = skyGrad;
-      gCtx.fillRect(0, 0, W, groundY);
-
-      // Scrolling clouds
-      var cloudSpeed = 40;
-      var cloudOffset = (gTime * cloudSpeed) % W;
-      gCtx.fillStyle = 'rgba(255,255,255,0.7)';
-      var clouds = [
-        {x: 0.15, y: 0.12, r: 0.06},
-        {x: 0.45, y: 0.08, r: 0.05},
-        {x: 0.72, y: 0.15, r: 0.07},
-        {x: 1.10, y: 0.10, r: 0.055}
-      ];
-      clouds.forEach(function(c) {
-        var cx = ((c.x * W - cloudOffset % W) + W) % W;
-        var cy = c.y * groundY;
-        var r = c.r * W;
+      // --- PANORAMA (top zone: 0 → groundY) ---
+      if (gBgImg.complete && gBgImg.naturalWidth) {
+        var bgW = gBgImg.naturalWidth, bgH = gBgImg.naturalHeight;
+        var scale = groundY / bgH;
+        var drawW = bgW * scale;
+        var scrollSpeed = drawW / 10;
+        var offset = (gTime * scrollSpeed) % drawW;
+        var x1 = -offset, x2 = x1 + drawW;
+        gCtx.save();
         gCtx.beginPath();
-        gCtx.arc(cx, cy, r, 0, Math.PI * 2);
-        gCtx.arc(cx + r * 0.7, cy - r * 0.3, r * 0.75, 0, Math.PI * 2);
-        gCtx.arc(cx - r * 0.6, cy - r * 0.1, r * 0.6, 0, Math.PI * 2);
-        gCtx.fill();
-      });
+        gCtx.rect(0, 0, W, groundY);
+        gCtx.clip();
+        gCtx.drawImage(gBgImg, x1, 0, drawW, groundY);
+        gCtx.drawImage(gBgImg, x2, 0, drawW, groundY);
+        if (x2 + drawW < W) gCtx.drawImage(gBgImg, x2 + drawW, 0, drawW, groundY);
+        // soft dark fade at bottom so photo blends into grass
+        var fade = gCtx.createLinearGradient(0, groundY * 0.7, 0, groundY);
+        fade.addColorStop(0, 'rgba(0,0,0,0)');
+        fade.addColorStop(1, 'rgba(0,0,0,0.5)');
+        gCtx.fillStyle = fade;
+        gCtx.fillRect(0, 0, W, groundY);
+        gCtx.restore();
+      } else {
+        gCtx.fillStyle = '#5BA3D9';
+        gCtx.fillRect(0, 0, W, groundY);
+      }
 
-      // Grass strip above road
-      var grassH = H * 0.06;
+      // --- GRASS ---
       gCtx.fillStyle = '#5D9E3A';
       gCtx.fillRect(0, groundY, W, grassH);
 
-      // Road (dark asphalt)
+      // --- ROAD ---
       gCtx.fillStyle = '#3A3A3A';
       gCtx.fillRect(0, groundY + grassH, W, H - groundY - grassH);
 
-      // Road marking — dashed center line, scrolling
+      // Scrolling center-line dashes
       var lineY = groundY + grassH + (H - groundY - grassH) * 0.45;
       var dashW = W * 0.07, gapW = W * 0.05;
       var lineOffset = (gTime * gSpeed) % (dashW + gapW);
@@ -2539,6 +2681,55 @@
       });
 
       setTimeout(updateList, 500);
+    })();
+
+    /* ═══════════════════════════════════════
+       TIMELINE BOTTOM SHEET
+       ═══════════════════════════════════════ */
+    (function () {
+      const events = [
+        { time: '10:30',       icon: '🏁', name: 'СБОР ГОСТЕЙ',      desc: 'Собираемся у дома жениха',           addr: '📍 Алды, ул. Цимлянская, д. 28' },
+        { time: '11:50',       icon: '🚗', name: 'КОРТЕЖ',            desc: 'Выезд в сторону дома невесты',       addr: '📍 Маршрут ~25 мин' },
+        { time: '12:30',       icon: '🕌', name: 'НАМАЗ',             desc: 'Остановка для полуденного намаза',   addr: '📍 Мечеть по маршруту' },
+        { time: '12:00–13:00', icon: '💒', name: 'ДОМ НЕВЕСТЫ',       desc: 'Прибытие кортежа, вывод невесты',    addr: '📍 ул. Лермонтова, 194' },
+        { time: '13:30',       icon: '🍽️', name: 'РЕСТОРАН «ПАРУС»',  desc: 'Кортеж с невестой прибывает',        addr: '📍 ул. Мамсурова, 6Б' },
+        { time: '14:00',       icon: '🎉', name: 'БЗ «ПАРУС»',        desc: 'Торжественный приём гостей',         addr: '📍 БЗ «Парус»' },
+      ];
+
+      const sheet    = document.getElementById('timelineSheet');
+      const backdrop = document.getElementById('timelineBackdrop');
+      const list     = document.getElementById('timelineList');
+
+      list.innerHTML = events.map((e, i) =>
+        '<div class="timeline-item" data-tl="' + i + '">' +
+          '<div class="tl-time">' + e.time + '</div>' +
+          '<div class="tl-spine"><div class="tl-dot"></div><div class="tl-line"></div></div>' +
+          '<div class="tl-body">' +
+            '<div class="tl-icon">' + e.icon + '</div>' +
+            '<div class="tl-name">' + e.name + '</div>' +
+            '<div class="tl-desc">' + e.desc + '</div>' +
+            '<div class="tl-addr">' + e.addr + '</div>' +
+          '</div>' +
+        '</div>'
+      ).join('');
+
+      function openSheet()  { sheet.classList.add('open');    backdrop.classList.add('active'); }
+      function closeSheet() { sheet.classList.remove('open'); backdrop.classList.remove('active'); }
+
+      document.getElementById('timelineBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        sheet.classList.contains('open') ? closeSheet() : openSheet();
+      });
+      document.getElementById('timelineHandle').addEventListener('click', closeSheet);
+      backdrop.addEventListener('click', closeSheet);
+
+      list.addEventListener('click', (e) => {
+        const item = e.target.closest('.timeline-item');
+        if (!item) return;
+        const wasActive = item.classList.contains('tl-active');
+        list.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('tl-active'));
+        if (!wasActive) item.classList.add('tl-active');
+      });
     })();
   </script>
 </body>
