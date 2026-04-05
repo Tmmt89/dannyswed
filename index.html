@@ -2016,44 +2016,55 @@
         return;
       }
 
-      // Draw panorama preserving original proportions
-      // Scale height to fill canvas height
+      // Looping panorama — preserves proportions, scrolls and repeats
       var bgW = gBgImg.naturalWidth;
       var bgH = gBgImg.naturalHeight;
       var scale = gCanvas.height / bgH;
       var drawH = gCanvas.height;
       var drawW = bgW * scale;
 
-      // Scroll: at t=0 show left edge, at t=gDuration show right edge
-      var maxScroll = drawW - gCanvas.width;
-      if (maxScroll < 0) maxScroll = 0;
-      var progress = Math.min(gTime / gDuration, 1);
-      var scrollX = -progress * maxScroll;
+      // Scroll speed: complete one full image width in ~8 seconds
+      var scrollSpeed = drawW / 8;
+      var offset = (gTime * scrollSpeed) % drawW;
 
-      gCtx.drawImage(gBgImg, scrollX, 0, drawW, drawH);
+      // Draw two copies for seamless looping
+      var x1 = -offset;
+      var x2 = x1 + drawW;
+
+      gCtx.drawImage(gBgImg, x1, 0, drawW, drawH);
+      gCtx.drawImage(gBgImg, x2, 0, drawW, drawH);
+      if (x2 + drawW < gCanvas.width) {
+        gCtx.drawImage(gBgImg, x2 + drawW, 0, drawW, drawH);
+      }
     }
+
+    // Unified sprite height for car and obstacles
+    var gSpriteH = 0;
+    function gGetSpriteH() { return gCanvas.height * 0.15; }
 
     function gDrawPlayer() {
       var isZ = gChar === 'zurab';
       var spr = gSprites[isZ ? 'zurab' : 'salambek'];
-      var h = gPlayer.h * 1.8;
-      var w = spr.naturalWidth ? (h * spr.naturalWidth / spr.naturalHeight) : gPlayer.w;
+      gSpriteH = gGetSpriteH();
+      var h = gSpriteH;
+      var w = spr.naturalWidth ? (h * spr.naturalWidth / spr.naturalHeight) : h * 2;
+      var gy = gPlayer.groundY + gPlayer.h;
       if (spr.complete && spr.naturalWidth) {
-        gCtx.drawImage(spr, gPlayer.x, gPlayer.y - h * 0.3, w, h);
+        gCtx.drawImage(spr, gPlayer.x, gy - h - (gPlayer.groundY - gPlayer.y), w, h);
       }
       gCtx.fillStyle = '#fff';
-      gCtx.font = 'bold ' + (h * 0.18) + 'px sans-serif';
+      gCtx.font = 'bold ' + (h * 0.16) + 'px sans-serif';
       gCtx.textAlign = 'center';
       gCtx.textBaseline = 'bottom';
-      gCtx.fillText(isZ ? 'Зураб' : 'Саламбек', gPlayer.x + w / 2, gPlayer.y - h * 0.35);
+      gCtx.fillText(isZ ? 'Зураб' : 'Саламбек', gPlayer.x + w / 2, gy - h - (gPlayer.groundY - gPlayer.y) - 4);
       gPlayer.drawW = w;
       gPlayer.drawH = h;
     }
 
     function gDrawObstacle(obs) {
       var spr = gSprites[obs.type.sprite];
-      var oh = gCanvas.height * 0.13;
-      var ow = spr.naturalWidth ? (oh * spr.naturalWidth / spr.naturalHeight) : oh * 0.6;
+      var oh = gGetSpriteH();
+      var ow = spr.naturalWidth ? (oh * spr.naturalWidth / spr.naturalHeight) : oh * 0.5;
       var gy = gPlayer.groundY + gPlayer.h;
       if (spr.complete && spr.naturalWidth) {
         gCtx.drawImage(spr, obs.x - ow / 2, gy - oh, ow, oh);
