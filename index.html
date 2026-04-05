@@ -1917,7 +1917,7 @@
     /* ═══════════════════════════════════════
        MINI-GAME: КОРТЕЖ
        ═══════════════════════════════════════ */
-    (function() {
+    {
       const canvas = document.getElementById('gameCanvas');
       const ctx = canvas.getContext('2d');
       const wrap = document.getElementById('gameWrap');
@@ -1926,7 +1926,7 @@
       let gameTime = 0;
       let gameDuration = 25;
       let lastFrame = 0;
-      let player, obstacles, nextObstacle, obstacleIndex, speed;
+      let player, obstacles, obstacleIndex, speed;
       let selectedChar = 'zurab';
 
       // Load sprites
@@ -2154,7 +2154,7 @@
 
       function gameOver(type) {
         gameRunning = false;
-        document.getElementById('failIcon').textContent = type.emoji;
+        document.getElementById('failIcon').textContent = '💥';
         document.getElementById('failTitle').textContent = type.label.toUpperCase() + '!';
         document.getElementById('failText').textContent = type.msg;
         document.getElementById('gameFail').classList.remove('hidden');
@@ -2205,7 +2205,7 @@
           jump();
         }
       });
-    })();
+    }
 
     /* ═══════════════════════════════════════
        EDIT MODE — открой ?edit в URL
