@@ -1897,7 +1897,6 @@
         <div class="game-msg-title">🏆 ХИТ-ПАРАД</div>
         <div id="leaderList" class="leader-list">Загрузка...</div>
         <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">🔄 ЕЩЁ РАЗ</button>
-        <button class="btn-nes btn-close" id="leaderBackBtn" onclick="gLeaderBack()" style="max-width:250px;">← НАЗАД</button>
         <button class="btn-nes btn-close" onclick="closeGame()" style="max-width:250px;">ВЫЙТИ</button>
       </div>
     </div>
@@ -2367,7 +2366,7 @@
       { emoji: '🔢', label: 'O909OO95', msg: 'Удачно взял Ольги!',           color: '#00ff66', img: 'olgi_pixel.png' },
       { emoji: '🚘', label: 'Чанган',   msg: 'Хапнул Чанган\nна кыргызском!', color: '#00ccff', img: 'changan_pixel.png' },
       { emoji: '🍽️', label: 'Плов',    msg: 'Порвался у паков!',             color: '#ffaa00', img: 'plov_pixel.png' },
-      { emoji: '💰', label: 'Rise',     msg: 'Получил премию в Rise!',        color: '#ff44ff' },
+      { emoji: '💰', label: 'Rise',     msg: 'Получил премию в Rise!',        color: '#ff44ff', img: 'rise_money.png' },
     ];
     var gCollectibleImages = {};
     gCollectibleTypes.forEach(function(ct) {
@@ -2537,9 +2536,11 @@
       var fs = Math.min(gCanvas.width, gCanvas.height) * 0.045;
       if (col.type.img && gCollectibleImages[col.type.img] && gCollectibleImages[col.type.img].complete) {
         var img = gCollectibleImages[col.type.img];
+        var maxSize = gGetSpriteH() * 0.7;
         var aspect = img.naturalWidth / img.naturalHeight;
-        var ih = gGetSpriteH() * 0.7;
-        var iw = ih * aspect;
+        var iw, ih;
+        if (aspect >= 1) { iw = maxSize; ih = maxSize / aspect; }
+        else { ih = maxSize; iw = maxSize * aspect; }
         var ix = col.x - iw / 2, iy = col.y - ih / 2;
         // pulse glow
         gCtx.globalAlpha = 0.3 + 0.2 * Math.sin(gTime * 5);
