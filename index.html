@@ -2282,16 +2282,12 @@
         gCtx.fillRect(0, 0, W, groundY);
       }
 
-      // --- GRASS ---
-      gCtx.fillStyle = '#5D9E3A';
-      gCtx.fillRect(0, groundY, W, grassH);
-
       // --- ROAD ---
-      gCtx.fillStyle = '#3A3A3A';
-      gCtx.fillRect(0, groundY + grassH, W, H - groundY - grassH);
+      gCtx.fillStyle = '#4A4A4A';
+      gCtx.fillRect(0, groundY, W, H - groundY);
 
       // Scrolling center-line dashes
-      var lineY = groundY + grassH + (H - groundY - grassH) * 0.45;
+      var lineY = groundY + (H - groundY) * 0.45;
       var dashW = W * 0.07, gapW = W * 0.05;
       var lineOffset = (gTime * gSpeed) % (dashW + gapW);
       gCtx.fillStyle = '#F5C518';
