@@ -507,8 +507,8 @@
        ═══════════════════════════════════════ */
     .side-menu {
       position: absolute;
-      top: 62px;
-      left: max(10px, calc(50% - 340px));
+      top: 2%;
+      left: 2%;
       z-index: 30;
       display: flex;
       flex-direction: column;
@@ -962,8 +962,10 @@
     .game-score-line { font-size: 18px; color: #f5c518; }
     .game-name-input { width: 100%; max-width: 260px; padding: 10px 14px; font-family: inherit; font-size: 16px; border: 2px solid #f5c518; border-radius: 8px; background: rgba(0,0,0,0.6); color: #fff; text-align: center; }
     .game-name-input::placeholder { color: rgba(255,255,255,0.4); }
-    .leader-list { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
-    .leader-row { display: flex; justify-content: space-between; padding: 6px 12px; background: rgba(255,255,255,0.08); border-radius: 6px; font-size: 15px; }
+    .leader-list { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
+    .leader-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(255,255,255,0.08); border-radius: 6px; font-size: 15px; }
+    .leader-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .leader-score { white-space: nowrap; flex-shrink: 0; font-size: 13px; opacity: 0.85; }
     .leader-row-first { background: linear-gradient(90deg,rgba(245,197,24,0.25),rgba(245,197,24,0.1)); border: 1px solid #f5c518; font-weight: bold; font-size: 16px; animation: leaderGlow 1.5s ease-in-out infinite alternate; }
     @keyframes leaderGlow { from { box-shadow: 0 0 4px rgba(245,197,24,0.3); } to { box-shadow: 0 0 14px rgba(245,197,24,0.8); } }
 
@@ -1358,26 +1360,26 @@
         <div class="marker-label" style="border-color:#4a90d9;color:#4a90d9;">???</div>
       </div>
 
-    </div>
+      <!-- UNIFIED SIDE MENU -->
+      <div class="side-menu" id="sideMenu">
+        <div class="side-menu-btn" id="timelineBtn" style="--i:0">
+          <span class="side-menu-icon">📋</span>
+          <span class="side-menu-label">ПЛАН</span>
+        </div>
+        <div class="side-menu-btn" id="quizBtn" style="--i:1">
+          <span class="side-menu-icon">🎯</span>
+          <span class="side-menu-label">КВИЗ</span>
+        </div>
+        <div class="side-menu-btn" id="gameBtn" style="--i:2">
+          <span class="side-menu-icon">🏎️</span>
+          <span class="side-menu-label">ИГРА</span>
+        </div>
+        <div class="side-menu-btn" id="envelopeBtn" style="--i:3">
+          <span class="side-menu-icon">✉️</span>
+          <span class="side-menu-label">WISHES</span>
+        </div>
+      </div>
 
-    <!-- UNIFIED SIDE MENU -->
-    <div class="side-menu" id="sideMenu">
-      <div class="side-menu-btn" id="timelineBtn" style="--i:0">
-        <span class="side-menu-icon">📋</span>
-        <span class="side-menu-label">ПЛАН</span>
-      </div>
-      <div class="side-menu-btn" id="quizBtn" style="--i:1">
-        <span class="side-menu-icon">🎯</span>
-        <span class="side-menu-label">КВИЗ</span>
-      </div>
-      <div class="side-menu-btn" id="gameBtn" style="--i:2">
-        <span class="side-menu-icon">🏎️</span>
-        <span class="side-menu-label">ИГРА</span>
-      </div>
-      <div class="side-menu-btn" id="envelopeBtn" style="--i:3">
-        <span class="side-menu-icon">✉️</span>
-        <span class="side-menu-label">WISHES</span>
-      </div>
     </div>
   </div>
 
@@ -1862,7 +1864,7 @@
        ═══════════════════════════════════════════ -->
   <div class="game-overlay" id="gameOverlay">
     <div class="game-hud">
-      <div class="game-hud-text" id="gameTimer">00:00</div>
+      <div class="game-hud-text" id="gameTimer">0</div>
       <div class="game-hud-text">🏎️ КОРТЕЖ</div>
       <button class="game-close" onclick="closeGame()">✕</button>
     </div>
@@ -1885,7 +1887,7 @@
         <div class="game-msg-title" id="failTitle">АВАРИЯ!</div>
         <img id="failImg" class="fail-img" src="" alt="">
         <div class="game-msg-text" id="failText"></div>
-        <div class="game-score-line">Ты продержался <strong id="failScore">0</strong> сек!</div>
+        <div class="game-score-line">Твой счёт: <strong id="failScore">0</strong> очков!</div>
         <input id="playerName" class="game-name-input" placeholder="Введи своё имя" maxlength="20">
         <button class="btn-nes btn-navigate" onclick="gSubmitScore()" style="max-width:250px;">🏆 В ХИТ-ПАРАД</button>
         <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;margin-top:0;">🔄 ЕЩЁ РАЗ</button>
@@ -2355,6 +2357,8 @@
     var gLastSpawn = 0;
     var gNextSpawn = 1.5;
     var gLastScore = 0;
+    var gScore = 0;
+    var gBonusScore = 0;
     var gLeaderUrl = 'https://script.google.com/macros/s/AKfycbyegVacvkwiCxAC9kyXy88fRVe2-LqU9TQRJYBqM9Gu3etVpZSvxIQoiitDF-nGdsKn/exec';
     var gCollectibles = [];
     var gNextCollectible = 3.5;
@@ -2486,7 +2490,7 @@
 
     // Unified sprite height for car and obstacles
     var gSpriteH = 0;
-    function gGetSpriteH() { return Math.min(gCanvas.width, gCanvas.height) * 0.11; }
+    function gGetSpriteH() { return Math.min(gCanvas.width, gCanvas.height) * 0.0935; }
 
     function gDrawPlayer() {
       var isZ = gChar === 'zurab';
@@ -2623,7 +2627,7 @@
         var jumpVel = gCanvas.height * 1.5;
         var jumpGrav = gCanvas.height * 4.0;
         var maxJumpH = (jumpVel * jumpVel) / (2 * jumpGrav);
-        var minY = gPlayer.groundY - maxJumpH;
+        var minY = gPlayer.groundY - maxJumpH * 0.8;
         var maxY = gPlayer.groundY - 0.6 * maxJumpH;
         gCollectibles.push({ x: gCanvas.width + 60, y: minY + Math.random() * (maxY - minY), type: ctype, drawW: 0, drawH: 0 });
         gNextCollectible = gTime + 5 + Math.random() * 4;
@@ -2652,7 +2656,7 @@
         ft.alpha -= dt / 2;
         if (ft.alpha <= 0) { gFloatingTexts.splice(fi, 1); continue; }
         gCtx.globalAlpha = ft.alpha;
-        var ftSize = Math.min(gCanvas.width * 0.13, 70);
+        var ftSize = Math.min(gCanvas.width * 0.043, 24);
         gCtx.font = 'bold ' + ftSize + 'px sans-serif';
         gCtx.fillStyle = ft.color || '#fff';
         gCtx.textAlign = 'center';
@@ -2676,26 +2680,27 @@
           gTime += bonus;
           gNextSpawn += bonus;
           gNextCollectible += bonus;
+          var bonusPoints = [50, 60, 70, 80, 90, 100][Math.floor(Math.random() * 6)];
+          gBonusScore += bonusPoints;
           gFloatingTexts.push({
             x: gPlayer.x + (gPlayer.drawW || gPlayer.w) / 2,
             y: gPlayer.groundY * 0.55,
-            text: '+' + bonus + ' сек!\n' + cct.msg,
+            text: '+' + bonusPoints + ' очков!\n' + cct.msg,
             alpha: 1, color: cct.color
           });
           gCollectibles.splice(ck, 1);
         }
       }
 
-      // Timer — show elapsed time
-      var elapsed = Math.floor(gTime);
-      document.getElementById('gameTimer').textContent =
-        String(Math.floor(elapsed / 60)).padStart(2, '0') + ':' + String(elapsed % 60).padStart(2, '0');
+      // Score display
+      gScore = Math.floor(gTime * gTime * 0.5) + gBonusScore;
+      document.getElementById('gameTimer').textContent = gScore;
 
       // Collision
       for (var k = 0; k < gObstacles.length; k++) {
         if (gCheckCollision(gObstacles[k])) {
           gRunning = false;
-          gLastScore = Math.floor(gTime);
+          gLastScore = gScore;
           var obsType = gObstacles[k].type;
           document.getElementById('failIcon').textContent = '💥';
           document.getElementById('failTitle').textContent = obsType.label.toUpperCase() + '!';
@@ -2733,6 +2738,8 @@
       gCollectibles = [];
       gFloatingTexts = [];
       gTime = 0;
+      gScore = 0;
+      gBonusScore = 0;
       gBgOffset = 0;
       gLastSpawn = 0;
       gNextSpawn = 1.5;
@@ -2774,7 +2781,7 @@
             var isFirst = i === 0;
             var prefix = isFirst ? '👑 ' : (i + 1) + '. ';
             var cls = isFirst ? 'leader-row leader-row-first' : 'leader-row';
-            return '<div class="' + cls + '"><span>' + prefix + r.name + '</span><span>' + r.score + ' сек</span></div>';
+            return '<div class="' + cls + '"><span class="leader-name">' + prefix + r.name + '</span><span class="leader-score">' + r.score + ' очк.</span></div>';
           }).join('');
         })
         .catch(function() {
