@@ -814,7 +814,7 @@
 
     .game-btn {
       position: absolute;
-      bottom: 12px; left: 12px;
+      top: 12px; left: 12px;
       z-index: 25;
       cursor: pointer;
       display: flex;
@@ -891,6 +891,70 @@
     }
 
     /* ═══════════════════════════════════════
+       ONBOARDING SCREEN
+       ═══════════════════════════════════════ */
+    .onboarding-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh; height: 100svh;
+      background: var(--dark);
+      z-index: 490;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+    .onboarding-screen.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .onboarding-inner {
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      border: 4px solid var(--gold);
+      padding: 28px 20px 20px;
+      background: var(--dark2);
+      box-shadow:
+        inset 0 0 0 2px var(--dark2),
+        inset 0 0 0 6px var(--gold-dim),
+        0 0 40px rgba(255,215,0,0.2);
+    }
+    .onboarding-icon { font-size: 52px; margin-bottom: 14px; }
+    .onboarding-title {
+      color: var(--gold);
+      font-size: 10px;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+    .onboarding-subtitle {
+      color: var(--cream);
+      font-size: 7px;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--gold-dim);
+    }
+    .onboarding-steps {
+      text-align: left;
+      margin-bottom: 22px;
+    }
+    .onboarding-step {
+      color: var(--cream);
+      font-size: 7px;
+      line-height: 2.2;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,215,0,0.1);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .onboarding-step:last-child { border-bottom: none; }
+    .onboarding-step-icon { flex-shrink: 0; font-size: 18px; }
+
+    /* ═══════════════════════════════════════
        LOADING SCREEN
        ═══════════════════════════════════════ */
     .loading-screen {
@@ -936,6 +1000,32 @@
     <div class="loading-text">ЗАГРУЗКА...</div>
     <div class="loading-bar-outer">
       <div class="loading-bar-inner" id="loadingBar"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ONBOARDING
+       ═══════════════════════════════════════════ -->
+  <div class="onboarding-screen" id="onboardingScreen">
+    <div class="onboarding-inner">
+      <div class="onboarding-icon">💒</div>
+      <div class="onboarding-title">ДОБРО ПОЖАЛОВАТЬ!</div>
+      <div class="onboarding-subtitle">СВАДЬБА ДЕНИ — 6 АПРЕЛЯ 2026</div>
+      <div class="onboarding-steps">
+        <div class="onboarding-step">
+          <span class="onboarding-step-icon">🗺️</span>
+          <span>Нажми на зону — узнаешь куда ехать и когда</span>
+        </div>
+        <div class="onboarding-step">
+          <span class="onboarding-step-icon">🚗</span>
+          <span>Следи за кортежем на карте</span>
+        </div>
+        <div class="onboarding-step">
+          <span class="onboarding-step-icon">🎯</span>
+          <span>Сыграй в игру, пройди викторину и найди пасхалки</span>
+        </div>
+      </div>
+      <button class="btn-nes btn-navigate" id="onboardingBtn">▶ ПОЕХАЛИ!</button>
     </div>
   </div>
 
@@ -1115,7 +1205,7 @@
         <img class="modal-img" src="cars_in_poselok.jpg" alt="Сбор">
         <div class="modal-text">
           Собираемся у дома жениха.
-          Кортеж выезжает в 11:00.
+          Кортеж выезжает в 11:50.
           Просьба не опаздывать!
           <span class="address">📍 Алды, ул. Цимлянская, д. 28</span>
           <span class="note">Приезжайте заранее</span>
@@ -1157,7 +1247,7 @@
         <div class="modal-header-icon">🚗</div>
         <div class="modal-header-text">
           <h3>КОРТЕЖ</h3>
-          <span class="modal-time">11:00</span>
+          <span class="modal-time">11:50</span>
         </div>
       </div>
       <div class="modal-body">
@@ -1635,8 +1725,20 @@
     function onReady() {
       clearInterval(loadInterval);
       loadingBar.style.width = '100%';
-      setTimeout(() => loadingScreen.classList.add('hidden'), 400);
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+        if (!localStorage.getItem('onboarding_seen')) {
+          setTimeout(() => {
+            document.getElementById('onboardingScreen').classList.add('visible');
+          }, 300);
+        }
+      }, 400);
     }
+
+    document.getElementById('onboardingBtn').addEventListener('click', () => {
+      localStorage.setItem('onboarding_seen', '1');
+      document.getElementById('onboardingScreen').classList.remove('visible');
+    });
 
     if (mapImg.complete && mapImg.naturalWidth) onReady();
     else {
@@ -2040,7 +2142,7 @@
 
     // Unified sprite height for car and obstacles
     var gSpriteH = 0;
-    function gGetSpriteH() { return gCanvas.height * 0.15; }
+    function gGetSpriteH() { return Math.min(gCanvas.width, gCanvas.height) * 0.10; }
 
     function gDrawPlayer() {
       var isZ = gChar === 'zurab';
@@ -2094,7 +2196,7 @@
       gLastFrame = ts;
       gTime += dt;
       gResize();
-      gSpeed = gCanvas.width * 0.35;
+      gSpeed = gCanvas.width * 0.55;
 
       // Gravity — all units per second (consistent with jump velocity)
       var gravity = gCanvas.height * 4.0;
