@@ -1008,7 +1008,7 @@
        ═══════════════════════════════════════════ -->
   <div class="onboarding-screen" id="onboardingScreen">
     <div class="onboarding-inner">
-      <div class="onboarding-icon">💒</div>
+      <div class="onboarding-icon">🏠</div>
       <div class="onboarding-title">ДОБРО ПОЖАЛОВАТЬ!</div>
       <div class="onboarding-subtitle">СВАДЬБА ДЕНИ — 6 АПРЕЛЯ 2026</div>
       <div class="onboarding-steps">
@@ -2037,8 +2037,6 @@
     // Sprites
     var gSprites = {};
     // Background panorama
-    var gBgImg = new Image();
-    gBgImg.src = 'game_bg.jpg';
 
     var gSpriteFiles = {
       zurab: 'game_zurab_sm.png',
@@ -2112,31 +2110,53 @@
     }
 
     function gDrawBackground() {
-      if (!gBgImg.complete || !gBgImg.naturalWidth) {
-        gCtx.fillStyle = '#87CEEB';
-        gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
-        return;
-      }
+      var W = gCanvas.width, H = gCanvas.height;
+      var groundY = gPlayer.groundY + gPlayer.h;
 
-      // Looping panorama — preserves proportions, scrolls and repeats
-      var bgW = gBgImg.naturalWidth;
-      var bgH = gBgImg.naturalHeight;
-      var scale = gCanvas.height / bgH;
-      var drawH = gCanvas.height;
-      var drawW = bgW * scale;
+      // Sky gradient
+      var skyGrad = gCtx.createLinearGradient(0, 0, 0, groundY);
+      skyGrad.addColorStop(0, '#5BA3D9');
+      skyGrad.addColorStop(1, '#C8E8F5');
+      gCtx.fillStyle = skyGrad;
+      gCtx.fillRect(0, 0, W, groundY);
 
-      // Scroll speed: complete one full image width in ~8 seconds
-      var scrollSpeed = drawW / 8;
-      var offset = (gTime * scrollSpeed) % drawW;
+      // Scrolling clouds
+      var cloudSpeed = 40;
+      var cloudOffset = (gTime * cloudSpeed) % W;
+      gCtx.fillStyle = 'rgba(255,255,255,0.7)';
+      var clouds = [
+        {x: 0.15, y: 0.12, r: 0.06},
+        {x: 0.45, y: 0.08, r: 0.05},
+        {x: 0.72, y: 0.15, r: 0.07},
+        {x: 1.10, y: 0.10, r: 0.055}
+      ];
+      clouds.forEach(function(c) {
+        var cx = ((c.x * W - cloudOffset % W) + W) % W;
+        var cy = c.y * groundY;
+        var r = c.r * W;
+        gCtx.beginPath();
+        gCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        gCtx.arc(cx + r * 0.7, cy - r * 0.3, r * 0.75, 0, Math.PI * 2);
+        gCtx.arc(cx - r * 0.6, cy - r * 0.1, r * 0.6, 0, Math.PI * 2);
+        gCtx.fill();
+      });
 
-      // Draw two copies for seamless looping
-      var x1 = -offset;
-      var x2 = x1 + drawW;
+      // Grass strip above road
+      var grassH = H * 0.06;
+      gCtx.fillStyle = '#5D9E3A';
+      gCtx.fillRect(0, groundY, W, grassH);
 
-      gCtx.drawImage(gBgImg, x1, 0, drawW, drawH);
-      gCtx.drawImage(gBgImg, x2, 0, drawW, drawH);
-      if (x2 + drawW < gCanvas.width) {
-        gCtx.drawImage(gBgImg, x2 + drawW, 0, drawW, drawH);
+      // Road (dark asphalt)
+      gCtx.fillStyle = '#3A3A3A';
+      gCtx.fillRect(0, groundY + grassH, W, H - groundY - grassH);
+
+      // Road marking — dashed center line, scrolling
+      var lineY = groundY + grassH + (H - groundY - grassH) * 0.45;
+      var dashW = W * 0.07, gapW = W * 0.05;
+      var lineOffset = (gTime * gSpeed) % (dashW + gapW);
+      gCtx.fillStyle = '#F5C518';
+      for (var lx = -lineOffset; lx < W; lx += dashW + gapW) {
+        gCtx.fillRect(lx, lineY, dashW, H * 0.012);
       }
     }
 
@@ -2196,7 +2216,7 @@
       gLastFrame = ts;
       gTime += dt;
       gResize();
-      gSpeed = gCanvas.width * 0.55;
+      gSpeed = gCanvas.width * 0.633;
 
       // Gravity — all units per second (consistent with jump velocity)
       var gravity = gCanvas.height * 4.0;
