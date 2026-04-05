@@ -1346,7 +1346,7 @@
 
       <div class="marker" style="left:63.1%; top:35%; transform: translate(-50%, -50%) scale(1.3);" data-modal="modal-sbor">
         <div class="marker-btn">🏠</div>
-        <div class="marker-label">СБОР У ДОМА ЖЕНИХА</div>
+        <div class="marker-label">СБОР У ДЕНИ</div>
       </div>
 
       <!-- Пасхалка: кораблик на озере -->
@@ -1585,6 +1585,8 @@
             action="https://formsubmit.co/YOUR_EMAIL"
           -->
           <button type="submit" class="btn-nes btn-send">📨 ОТПРАВИТЬ</button>
+          <button type="button" class="btn-read-wishes" id="btnReadWishes">📖 ПРОЧИТАТЬ ПОЖЕЛАНИЯ</button>
+          <div id="wishesList"></div>
         </form>
       </div>
     </div>
@@ -1954,34 +1956,53 @@
       document.getElementById('modal-envelope').classList.add('active');
     });
 
+    /* URL Google Apps Script — вставь после деплоя */
+    const WISHES_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL-S7bJls3rh8e5eYrrF6CBFXn1SCDnktYGAAihyDC43oMQhFlXUxzAGTnw0XOZO8a/exec';
+
+    window.loadWishes = function() {
+      const list = document.getElementById('wishesList');
+      if (!list) return;
+      list.innerHTML = '<div style="color:var(--gold);font-size:7px;padding:12px 0;text-align:center;">Загружаем...</div>';
+      fetch(WISHES_SCRIPT_URL)
+        .then(r => r.json())
+        .then(wishes => {
+          if (!wishes.length) {
+            list.innerHTML = '<div style="color:var(--cream);font-size:7px;padding:12px 0;line-height:2;text-align:center;">Пока нет пожеланий.</div>';
+            return;
+          }
+          list.innerHTML = wishes.map(w =>
+            '<div class="wish-item">' +
+            '<div class="wish-author">✦ ' + w.name + '</div>' +
+            '<div class="wish-text">' + w.wish + '</div>' +
+            '</div>'
+          ).join('');
+        })
+        .catch(() => {
+          list.innerHTML = '<div style="color:var(--red-hi);font-size:7px;padding:12px 0;text-align:center;">Ошибка загрузки.</div>';
+        });
+    };
+
+    document.getElementById('btnReadWishes').addEventListener('click', loadWishes);
+
     document.getElementById('wishForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const name = this.name.value.trim();
       const wish = this.wish.value.trim();
       if (!name || !wish) return;
 
-      /*
-        Чтобы пожелания приходили на email Дени:
-        1. Замени URL ниже на: https://formsubmit.co/EMAIL_ДЕНИ
-        2. Первый раз FormSubmit попросит подтвердить email
-        3. После этого все пожелания будут приходить на почту
-      */
-      fetch('https://formsubmit.co/ajax/sangariev@gmail.com', {
+      fetch(WISHES_SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: name,
-          wish: wish,
-          _subject: 'Пожелание от ' + name + ' — Свадьба Дени'
-        })
+        body: new URLSearchParams({ name: name, wish: wish })
       }).catch(() => {});
 
-      // Show success regardless (offline-friendly)
       document.getElementById('envelopeBody').innerHTML =
         '<div class="form-success">' +
         '✅ ОТПРАВЛЕНО!<br><br>' +
         'Спасибо, ' + name + '!<br><br>' +
-        'Дени обязательно<br>прочитает твоё<br>пожелание 💛' +
+        'Дени обязательно<br>прочитает твоё<br>пожелание 💛<br><br>' +
+        '<button class="btn-read-wishes" style="margin:0 auto;" onclick="loadWishes()">' +
+        '📖 ПРОЧИТАТЬ ПОЖЕЛАНИЯ</button>' +
+        '<div id="wishesList"></div>' +
         '</div>';
     });
 
@@ -2526,6 +2547,8 @@
     document.addEventListener('touchend', function() { gJumpRelease(); });
     document.addEventListener('keydown', function(e) {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
+        const tag = document.activeElement.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
         e.preventDefault();
         gJump();
       }
