@@ -736,6 +736,101 @@
     .quiz-btn-text { font-size: 5px; color: var(--gold); white-space: nowrap; }
 
     /* ═══════════════════════════════════════
+       MINI-GAME
+       ═══════════════════════════════════════ */
+    .game-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh; height: 100svh;
+      background: var(--dark);
+      z-index: 400;
+      display: none;
+      flex-direction: column;
+    }
+    .game-overlay.active { display: flex; }
+
+    .game-hud {
+      background: var(--dark);
+      border-bottom: 3px solid var(--gold);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+    .game-hud-text {
+      color: var(--gold);
+      font-size: 8px;
+    }
+    .game-close {
+      background: none; border: 2px solid var(--red-hi);
+      color: var(--red-hi);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .game-canvas-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, #8B7355 60%, #6B4226 100%);
+    }
+    .game-canvas-wrap canvas {
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    .game-msg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15,25,35,0.9);
+      z-index: 5;
+      padding: 20px;
+      text-align: center;
+      gap: 16px;
+    }
+    .game-msg.hidden { display: none; }
+
+    .game-msg-icon { font-size: 48px; }
+    .game-msg-title {
+      color: var(--gold);
+      font-size: 10px;
+      line-height: 2;
+    }
+    .game-msg-text {
+      color: var(--cream);
+      font-size: 7px;
+      line-height: 2.2;
+      max-width: 300px;
+    }
+    .game-msg .btn-nes { max-width: 250px; margin: 0 auto; }
+
+    .game-btn {
+      position: absolute;
+      bottom: 12px; left: 12px;
+      z-index: 25;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      border: 2px solid var(--gold);
+      border-radius: 10px;
+      background: rgba(15,25,35,0.85);
+      padding: 10px 12px;
+      animation: zone-breathe 2.5s ease-in-out infinite;
+    }
+    .game-btn:active { transform: scale(0.95); }
+    .game-btn-icon { font-size: 28px; }
+    .game-btn-text { font-size: 5px; color: var(--gold); white-space: nowrap; }
+
+    /* ═══════════════════════════════════════
        ZASADA — money animation
        ═══════════════════════════════════════ */
     .zasada-pay-area {
@@ -896,6 +991,12 @@
       <div class="marker" style="left:40.6%; top:31.7%;" data-modal="modal-rise">
         <div class="marker-btn" style="border-color:#4a90d9;">❓</div>
         <div class="marker-label" style="border-color:#4a90d9;color:#4a90d9;">???</div>
+      </div>
+
+      <!-- Кнопка МИНИ-ИГРА — левый нижний угол -->
+      <div class="game-btn" id="gameBtn">
+        <div class="game-btn-icon">🏎️</div>
+        <div class="game-btn-text">МИНИ-ИГРА</div>
       </div>
 
       <!-- Кнопка ВИКТОРИНА — правый верхний угол -->
@@ -1391,6 +1492,47 @@
   </div>
 
   <!-- ═══════════════════════════════════════════
+       МИНИ-ИГРА: КОРТЕЖ
+       ═══════════════════════════════════════════ -->
+  <div class="game-overlay" id="gameOverlay">
+    <div class="game-hud">
+      <div class="game-hud-text" id="gameTimer">00:00</div>
+      <div class="game-hud-text">🏎️ КОРТЕЖ</div>
+      <button class="game-close" onclick="closeGame()">✕</button>
+    </div>
+    <div class="game-canvas-wrap" id="gameWrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="game-msg" id="gameStart">
+        <div class="game-msg-icon">🏎️</div>
+        <div class="game-msg-title">ГОНКА КОРТЕЖА</div>
+        <div class="game-msg-text">
+          Доберись до дома невесты,<br>
+          перепрыгивая препятствия!<br><br>
+          Тапни, чтобы прыгнуть.
+        </div>
+        <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">▶ НАЧАТЬ</button>
+      </div>
+      <div class="game-msg hidden" id="gameFail">
+        <div class="game-msg-icon" id="failIcon">💥</div>
+        <div class="game-msg-title" id="failTitle">АВАРИЯ!</div>
+        <div class="game-msg-text" id="failText"></div>
+        <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">🔄 ЕЩЁ РАЗ</button>
+        <button class="btn-nes btn-close" onclick="closeGame()" style="max-width:250px;">ВЫЙТИ</button>
+      </div>
+      <div class="game-msg hidden" id="gameWin">
+        <div class="game-msg-icon">🏆</div>
+        <div class="game-msg-title">ПОЗДРАВЛЯЕМ!</div>
+        <div class="game-msg-text">
+          Ты занял 2-е место в кортеже —<br>
+          почётное место прямо за<br>
+          машиной невесты!
+        </div>
+        <button class="btn-nes btn-navigate" onclick="closeGame()" style="max-width:250px;">🎉 КРУТО!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
        JAVASCRIPT
        ═══════════════════════════════════════════ -->
   <script>
@@ -1770,6 +1912,276 @@
         '</div>' +
         '</div>';
     }
+    /* ═══════════════════════════════════════
+       MINI-GAME: КОРТЕЖ
+       ═══════════════════════════════════════ */
+    (function() {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const wrap = document.getElementById('gameWrap');
+
+      let gameRunning = false;
+      let gameTime = 0;
+      let gameDuration = 25;
+      let lastFrame = 0;
+      let player, obstacles, nextObstacle, obstacleIndex, speed;
+
+      // Obstacle types
+      const obstacleTypes = [
+        { emoji: '🚧', label: 'Шлагбаум', msg: 'Дорогу перекрыли! Кортеж застрял.' },
+        { emoji: '👮', label: 'ДПС', msg: 'Тебя остановил инспектор и оштрафовал!' },
+        { emoji: '🚦', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
+        { emoji: '⚠️', label: 'Перекрёсток', msg: 'Ты перепутал дорогу и заблудился!' },
+        { emoji: '👴', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал дядя!' }
+      ];
+
+      // Obstacle schedule: 14 obstacles over 25 seconds
+      function generateSchedule() {
+        const schedule = [];
+        const count = 14;
+        const gap = gameDuration / (count + 1);
+        for (let i = 0; i < count; i++) {
+          schedule.push({
+            time: gap * (i + 1) + (Math.random() - 0.5) * 0.5,
+            type: obstacleTypes[i % obstacleTypes.length]
+          });
+        }
+        return schedule;
+      }
+
+      let schedule = [];
+
+      function resize() {
+        canvas.width = wrap.clientWidth * 2;
+        canvas.height = wrap.clientHeight * 2;
+      }
+
+      // Player
+      function resetPlayer() {
+        player = {
+          x: canvas.width * 0.12,
+          w: canvas.width * 0.08,
+          h: canvas.width * 0.05,
+          y: 0,
+          vy: 0,
+          grounded: true
+        };
+        player.groundY = canvas.height * 0.72;
+        player.y = player.groundY;
+      }
+
+      function jump() {
+        if (!gameRunning) return;
+        if (player.grounded) {
+          player.vy = -canvas.height * 0.028;
+          player.grounded = false;
+        }
+      }
+
+      // Draw
+      function drawGround() {
+        const gy = player.groundY + player.h;
+        ctx.fillStyle = '#8B7355';
+        ctx.fillRect(0, gy, canvas.width, canvas.height - gy);
+        ctx.strokeStyle = '#6B4226';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(canvas.width, gy);
+        ctx.stroke();
+
+        // Road markings
+        ctx.fillStyle = '#A0926B';
+        const markW = 40;
+        const offset = (gameTime * speed * 2) % (markW * 2);
+        for (let x = -offset; x < canvas.width; x += markW * 2) {
+          ctx.fillRect(x, gy + 15, markW, 4);
+        }
+      }
+
+      function drawSky() {
+        const grad = ctx.createLinearGradient(0, 0, 0, player.groundY);
+        grad.addColorStop(0, '#87CEEB');
+        grad.addColorStop(1, '#B0E0E6');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, player.groundY + player.h);
+      }
+
+      function drawPlayer() {
+        const x = player.x;
+        const y = player.y;
+        const w = player.w;
+        const h = player.h;
+
+        // Car body
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(x, y, w, h);
+        // Roof
+        ctx.fillRect(x + w * 0.15, y - h * 0.5, w * 0.7, h * 0.55);
+        // Windows
+        ctx.fillStyle = '#4488cc';
+        ctx.fillRect(x + w * 0.2, y - h * 0.42, w * 0.25, h * 0.38);
+        ctx.fillRect(x + w * 0.5, y - h * 0.42, w * 0.25, h * 0.38);
+        // Wheels
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(x + w * 0.22, y + h, h * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + w * 0.78, y + h, h * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        // Headlight
+        ctx.fillStyle = '#ffdd44';
+        ctx.fillRect(x + w - 4, y + h * 0.2, 4, h * 0.25);
+      }
+
+      function drawObstacle(obs) {
+        const size = canvas.width * 0.06;
+        ctx.font = size + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(obs.type.emoji, obs.x, player.groundY + player.h);
+        // Small label
+        ctx.font = 'bold ' + (size * 0.25) + 'px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textBaseline = 'top';
+        ctx.fillText(obs.type.label, obs.x, player.groundY + player.h + 4);
+      }
+
+      function drawTimer() {
+        const remaining = Math.max(0, gameDuration - gameTime);
+        const s = Math.ceil(remaining);
+        document.getElementById('gameTimer').textContent =
+          String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      }
+
+      // Collision
+      function checkCollision(obs) {
+        const obsSize = canvas.width * 0.04;
+        const obsLeft = obs.x - obsSize;
+        const obsRight = obs.x + obsSize;
+        const obsTop = player.groundY + player.h - canvas.width * 0.06;
+
+        const pLeft = player.x;
+        const pRight = player.x + player.w;
+        const pTop = player.y - player.h * 0.5;
+        const pBottom = player.y + player.h;
+
+        return pRight > obsLeft && pLeft < obsRight && pBottom > obsTop;
+      }
+
+      // Game loop
+      function gameLoop(ts) {
+        if (!gameRunning) return;
+
+        const dt = Math.min((ts - lastFrame) / 1000, 0.05);
+        lastFrame = ts;
+        gameTime += dt;
+
+        resize();
+        speed = canvas.width * 0.35;
+
+        // Physics
+        if (!player.grounded) {
+          player.vy += canvas.height * 0.06 * dt * 60;
+          player.y += player.vy;
+          if (player.y >= player.groundY) {
+            player.y = player.groundY;
+            player.vy = 0;
+            player.grounded = true;
+          }
+        }
+
+        // Spawn obstacles
+        while (obstacleIndex < schedule.length && schedule[obstacleIndex].time <= gameTime) {
+          obstacles.push({
+            x: canvas.width + 50,
+            type: schedule[obstacleIndex].type
+          });
+          obstacleIndex++;
+        }
+
+        // Move obstacles
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          obstacles[i].x -= speed * dt;
+          if (obstacles[i].x < -100) obstacles.splice(i, 1);
+        }
+
+        // Draw
+        drawSky();
+        drawGround();
+        drawPlayer();
+        obstacles.forEach(o => drawObstacle(o));
+        drawTimer();
+
+        // Collision check
+        for (const obs of obstacles) {
+          if (checkCollision(obs)) {
+            gameOver(obs.type);
+            return;
+          }
+        }
+
+        // Win check
+        if (gameTime >= gameDuration) {
+          gameWin();
+          return;
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      function gameOver(type) {
+        gameRunning = false;
+        document.getElementById('failIcon').textContent = type.emoji;
+        document.getElementById('failTitle').textContent = type.label.toUpperCase() + '!';
+        document.getElementById('failText').textContent = type.msg;
+        document.getElementById('gameFail').classList.remove('hidden');
+      }
+
+      function gameWin() {
+        gameRunning = false;
+        document.getElementById('gameWin').classList.remove('hidden');
+      }
+
+      window.startGame = function() {
+        document.getElementById('gameStart').classList.add('hidden');
+        document.getElementById('gameFail').classList.add('hidden');
+        document.getElementById('gameWin').classList.add('hidden');
+
+        resize();
+        resetPlayer();
+        obstacles = [];
+        obstacleIndex = 0;
+        gameTime = 0;
+        schedule = generateSchedule();
+        gameRunning = true;
+        lastFrame = performance.now();
+        requestAnimationFrame(gameLoop);
+      };
+
+      window.closeGame = function() {
+        gameRunning = false;
+        document.getElementById('gameOverlay').classList.remove('active');
+        document.getElementById('gameStart').classList.remove('hidden');
+        document.getElementById('gameFail').classList.add('hidden');
+        document.getElementById('gameWin').classList.add('hidden');
+      };
+
+      document.getElementById('gameBtn').addEventListener('click', () => {
+        document.getElementById('gameOverlay').classList.add('active');
+      });
+
+      // Jump controls
+      document.getElementById('gameWrap').addEventListener('click', (e) => {
+        if (e.target.closest('.game-msg') || e.target.closest('button')) return;
+        jump();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') { e.preventDefault(); jump(); }
+      });
+    })();
+
     /* ═══════════════════════════════════════
        EDIT MODE — открой ?edit в URL
        Работает на ВСЕХ экранах.
