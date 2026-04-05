@@ -1952,16 +1952,20 @@
         { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал дядя!' }
       ];
 
-      // Obstacle schedule: 14 obstacles over 25 seconds
+      // Obstacle schedule: 14 obstacles over 25 seconds, random gaps
       function generateSchedule() {
         const schedule = [];
         const count = 14;
-        const gap = gameDuration / (count + 1);
+        let t = 1.5 + Math.random() * 0.5; // first obstacle at ~1.5-2s
         for (let i = 0; i < count; i++) {
           schedule.push({
-            time: gap * (i + 1) + (Math.random() - 0.5) * 0.5,
-            type: obstacleTypes[i % obstacleTypes.length]
+            time: t,
+            type: obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)]
           });
+          // Random gap between 0.8s and 2.5s
+          t += 0.8 + Math.random() * 1.7;
+          // Make sure we don't exceed game duration
+          if (t > gameDuration - 1) break;
         }
         return schedule;
       }
@@ -2194,8 +2198,13 @@
         if (e.target.closest('.game-msg') || e.target.closest('button')) return;
         jump();
       });
+      document.getElementById('gameWrap').addEventListener('touchstart', (e) => {
+        if (e.target.closest('.game-msg') || e.target.closest('button')) return;
+        e.preventDefault();
+        jump();
+      }, { passive: false });
       document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') { e.preventDefault(); jump(); }
+        if ((e.code === 'Space' || e.code === 'ArrowUp' || e.key === 'w' || e.key === 'W') && gameRunning) { e.preventDefault(); jump(); }
       });
     })();
 
