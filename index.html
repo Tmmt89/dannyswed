@@ -797,6 +797,8 @@
       gap: 16px;
     }
     .game-msg.hidden { display: none; }
+    .fail-img { width: 100%; max-width: 320px; border-radius: 10px; display: none; margin: 0 auto; }
+    .fail-img.visible { display: block; }
 
     .game-msg-icon { font-size: 48px; }
     .game-msg-title {
@@ -1748,6 +1750,7 @@
       <div class="game-msg hidden" id="gameFail">
         <div class="game-msg-icon" id="failIcon">💥</div>
         <div class="game-msg-title" id="failTitle">АВАРИЯ!</div>
+        <img id="failImg" class="fail-img" src="" alt="">
         <div class="game-msg-text" id="failText"></div>
         <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">🔄 ЕЩЁ РАЗ</button>
         <button class="btn-nes btn-close" onclick="closeGame()" style="max-width:250px;">ВЫЙТИ</button>
@@ -2197,7 +2200,7 @@
 
     var gObstacleTypes = [
       { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!' },
-      { sprite: 'police', label: 'ДПС', msg: 'Ты выехал на встречку и попал на лишение!' },
+      { sprite: 'police', label: 'ДПС', msg: 'Ты нарушил сплошную и попал на лишение!', img: 'fine.png' },
       { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
       { sprite: 'granddad', label: 'Старик', msg: 'Ты беспределил на дороге, и тебя отругал де ваш!' }
     ];
@@ -2390,9 +2393,18 @@
       for (var k = 0; k < gObstacles.length; k++) {
         if (gCheckCollision(gObstacles[k])) {
           gRunning = false;
+          var obsType = gObstacles[k].type;
           document.getElementById('failIcon').textContent = '💥';
-          document.getElementById('failTitle').textContent = gObstacles[k].type.label.toUpperCase() + '!';
-          document.getElementById('failText').textContent = gObstacles[k].type.msg;
+          document.getElementById('failTitle').textContent = obsType.label.toUpperCase() + '!';
+          document.getElementById('failText').textContent = obsType.msg;
+          var failImg = document.getElementById('failImg');
+          if (obsType.img) {
+            failImg.src = obsType.img;
+            failImg.classList.add('visible');
+          } else {
+            failImg.src = '';
+            failImg.classList.remove('visible');
+          }
           document.getElementById('gameFail').classList.remove('hidden');
           return;
         }
