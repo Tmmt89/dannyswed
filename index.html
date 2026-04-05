@@ -805,6 +805,8 @@
     .game-name-input::placeholder { color: rgba(255,255,255,0.4); }
     .leader-list { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; }
     .leader-row { display: flex; justify-content: space-between; padding: 6px 12px; background: rgba(255,255,255,0.08); border-radius: 6px; font-size: 15px; }
+    .leader-row-first { background: linear-gradient(90deg,rgba(245,197,24,0.25),rgba(245,197,24,0.1)); border: 1px solid #f5c518; font-weight: bold; font-size: 16px; animation: leaderGlow 1.5s ease-in-out infinite alternate; }
+    @keyframes leaderGlow { from { box-shadow: 0 0 4px rgba(245,197,24,0.3); } to { box-shadow: 0 0 14px rgba(245,197,24,0.8); } }
 
     .game-msg-icon { font-size: 48px; }
     .game-msg-title {
@@ -1750,6 +1752,7 @@
         </div>
         <button class="btn-nes btn-navigate" onclick="startGame('zurab')" style="max-width:250px;">🖤 ЗУРАБ — BMW X5</button>
         <button class="btn-nes btn-send" onclick="startGame('salambek')" style="max-width:250px;">💛 САЛАМБЕК — MERCEDES</button>
+        <button class="btn-nes btn-close" onclick="gShowLeaderFromStart()" style="max-width:250px;">🏆 ХИТ-ПАРАД</button>
       </div>
       <div class="game-msg hidden" id="gameFail">
         <div class="game-msg-icon" id="failIcon">💥</div>
@@ -1766,6 +1769,7 @@
         <div class="game-msg-title">🏆 ХИТ-ПАРАД</div>
         <div id="leaderList" class="leader-list">Загрузка...</div>
         <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">🔄 ЕЩЁ РАЗ</button>
+        <button class="btn-nes btn-close" id="leaderBackBtn" onclick="gLeaderBack()" style="max-width:250px;">← НАЗАД</button>
         <button class="btn-nes btn-close" onclick="closeGame()" style="max-width:250px;">ВЫЙТИ</button>
       </div>
     </div>
@@ -2448,6 +2452,8 @@
       gShowLeader();
     }
 
+    var gLeaderFromStart = false;
+
     function gShowLeader() {
       document.getElementById('gameFail').classList.add('hidden');
       document.getElementById('gameLeader').classList.remove('hidden');
@@ -2457,12 +2463,32 @@
         .then(function(data) {
           if (!data.length) { document.getElementById('leaderList').innerHTML = 'Пока никого 🙈'; return; }
           document.getElementById('leaderList').innerHTML = data.map(function(r, i) {
-            return '<div class="leader-row"><span>' + (i + 1) + '. ' + r.name + '</span><span>' + r.score + ' сек</span></div>';
+            var isFirst = i === 0;
+            var prefix = isFirst ? '👑 ' : (i + 1) + '. ';
+            var cls = isFirst ? 'leader-row leader-row-first' : 'leader-row';
+            var suffix = isFirst ? ' — 2-е место в кортеже!' : '';
+            return '<div class="' + cls + '"><span>' + prefix + r.name + suffix + '</span><span>' + r.score + ' сек</span></div>';
           }).join('');
         })
         .catch(function() {
           document.getElementById('leaderList').innerHTML = 'Не удалось загрузить 😔';
         });
+    }
+
+    function gShowLeaderFromStart() {
+      gLeaderFromStart = true;
+      document.getElementById('gameStart').classList.add('hidden');
+      gShowLeader();
+    }
+
+    function gLeaderBack() {
+      document.getElementById('gameLeader').classList.add('hidden');
+      if (gLeaderFromStart) {
+        gLeaderFromStart = false;
+        document.getElementById('gameStart').classList.remove('hidden');
+      } else {
+        document.getElementById('gameFail').classList.remove('hidden');
+      }
     }
 
     document.getElementById('gameBtn').addEventListener('click', function() {
