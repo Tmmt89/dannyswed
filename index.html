@@ -553,12 +553,6 @@
       user-select: text;
     }
 
-    .wish-item {
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255,215,0,0.1);
-    }
-    .wish-author { color: var(--gold); font-size: 7px; margin-bottom: 6px; }
-    .wish-text { color: var(--cream); font-size: 7px; line-height: 2; white-space: pre-wrap; }
     .btn-read-wishes {
       display: block; width: 100%;
       padding: 12px;
@@ -571,6 +565,115 @@
       margin-top: 12px;
     }
     .btn-read-wishes:active { border-color: var(--gold); color: var(--gold); }
+
+    /* ═══════════════════════════════════════
+       WISHES READER OVERLAY
+       ═══════════════════════════════════════ */
+    .wishes-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh; height: 100svh;
+      background: var(--dark);
+      z-index: 350;
+      display: flex;
+      flex-direction: column;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .wishes-overlay.active { opacity: 1; visibility: visible; }
+
+    .wishes-overlay-header {
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      padding: 52px 16px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .wishes-back-btn {
+      background: none;
+      border: 2px solid var(--dark);
+      color: var(--dark);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      padding: 7px 10px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .wishes-back-btn:active { opacity: 0.7; }
+    .wishes-header-info { flex: 1; }
+    .wishes-header-title {
+      color: var(--dark);
+      font-size: 9px;
+      line-height: 1.5;
+    }
+    .wishes-header-count {
+      color: rgba(15,25,35,0.65);
+      font-size: 6px;
+      margin-top: 4px;
+    }
+
+    .wishes-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 40px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .wish-card {
+      background: var(--dark2);
+      border: 2px solid rgba(255,215,0,0.15);
+      border-left: 4px solid var(--gold-dim);
+      padding: 14px 14px 14px 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .wish-card:last-child { margin-bottom: 0; }
+    .wish-card-author {
+      color: var(--gold);
+      font-size: 7px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wish-card-author::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+    .wish-card-text {
+      color: var(--cream);
+      font-size: 7px;
+      line-height: 2.2;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .wishes-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--cream);
+      font-size: 8px;
+      line-height: 2.5;
+      opacity: 0.6;
+    }
+    .wishes-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gold);
+      font-size: 7px;
+      animation: blink-hint 1s ease-in-out infinite;
+    }
+    .wishes-error {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--red-hi);
+      font-size: 7px;
+      line-height: 2;
+    }
 
     .envelope-form input:focus,
     .envelope-form textarea:focus {
@@ -1586,7 +1689,6 @@
           -->
           <button type="submit" class="btn-nes btn-send">📨 ОТПРАВИТЬ</button>
           <button type="button" class="btn-read-wishes" id="btnReadWishes">📖 ПРОЧИТАТЬ ПОЖЕЛАНИЯ</button>
-          <div id="wishesList"></div>
         </form>
       </div>
     </div>
@@ -1956,33 +2058,47 @@
       document.getElementById('modal-envelope').classList.add('active');
     });
 
-    /* URL Google Apps Script — вставь после деплоя */
+    /* URL Google Apps Script */
     const WISHES_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL-S7bJls3rh8e5eYrrF6CBFXn1SCDnktYGAAihyDC43oMQhFlXUxzAGTnw0XOZO8a/exec';
 
-    window.loadWishes = function() {
-      const list = document.getElementById('wishesList');
-      if (!list) return;
-      list.innerHTML = '<div style="color:var(--gold);font-size:7px;padding:12px 0;text-align:center;">Загружаем...</div>';
+    const wishesOverlay = document.getElementById('wishesOverlay');
+    const wishesScroll  = document.getElementById('wishesScroll');
+    const wishesCount   = document.getElementById('wishesCount');
+
+    function openWishesOverlay() {
+      wishesOverlay.classList.add('active');
+      wishesScroll.innerHTML = '<div class="wishes-loading">Загружаем пожелания...</div>';
+      wishesCount.textContent = '...';
       fetch(WISHES_SCRIPT_URL)
         .then(r => r.json())
         .then(wishes => {
           if (!wishes.length) {
-            list.innerHTML = '<div style="color:var(--cream);font-size:7px;padding:12px 0;line-height:2;text-align:center;">Пока нет пожеланий.</div>';
+            wishesCount.textContent = 'Пока нет пожеланий';
+            wishesScroll.innerHTML = '<div class="wishes-empty">Будь первым, кто<br>оставит пожелание 💛</div>';
             return;
           }
-          list.innerHTML = wishes.map(w =>
-            '<div class="wish-item">' +
-            '<div class="wish-author">✦ ' + w.name + '</div>' +
-            '<div class="wish-text">' + w.wish + '</div>' +
+          const n = wishes.length;
+          wishesCount.textContent = n + ' ' + (n === 1 ? 'пожелание' : n < 5 ? 'пожелания' : 'пожеланий');
+          wishesScroll.innerHTML = wishes.map(w =>
+            '<div class="wish-card">' +
+            '<div class="wish-card-author">' + w.name + '</div>' +
+            '<div class="wish-card-text">' + w.wish + '</div>' +
             '</div>'
           ).join('');
         })
         .catch(() => {
-          list.innerHTML = '<div style="color:var(--red-hi);font-size:7px;padding:12px 0;text-align:center;">Ошибка загрузки.</div>';
+          wishesCount.textContent = '';
+          wishesScroll.innerHTML = '<div class="wishes-error">Не удалось загрузить.<br>Проверь интернет и попробуй снова.</div>';
         });
-    };
+    }
 
-    document.getElementById('btnReadWishes').addEventListener('click', loadWishes);
+    document.getElementById('wishesBackBtn').addEventListener('click', () => {
+      wishesOverlay.classList.remove('active');
+    });
+
+    window.loadWishes = openWishesOverlay;
+
+    document.getElementById('btnReadWishes').addEventListener('click', openWishesOverlay);
 
     document.getElementById('wishForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -1998,9 +2114,8 @@
         '✅ ОТПРАВЛЕНО!<br><br>' +
         'Спасибо, ' + name + '!<br><br>' +
         'Дени обязательно<br>прочитает твоё<br>пожелание 💛<br><br>' +
-        '<button class="btn-read-wishes" style="margin:0 auto;" onclick="loadWishes()">' +
+        '<button class="btn-read-wishes" onclick="openWishesOverlay()">' +
         '📖 ПРОЧИТАТЬ ПОЖЕЛАНИЯ</button>' +
-        '<div id="wishesList"></div>' +
         '</div>';
     });
 
@@ -2112,7 +2227,7 @@
       },
       {
         q: 'Какой номер автомобиля у Дени?',
-        options: ['К713ММ 95', 'О815ОО 95', '108 AWB', 'Р001РХ 77'],
+        options: ['К713ММ 95', 'О888ОН 95', '108 AWB', 'Р001РХ 77'],
         correct: 2
       },
       {
@@ -2820,5 +2935,21 @@
       });
     })();
   </script>
+
+  <!-- ═══════════════════════════════════════════
+       WISHES READER OVERLAY
+       ═══════════════════════════════════════════ -->
+  <div class="wishes-overlay" id="wishesOverlay">
+    <div class="wishes-overlay-header">
+      <button class="wishes-back-btn" id="wishesBackBtn">◀ НАЗАД</button>
+      <div class="wishes-header-info">
+        <div class="wishes-header-title">ПОЖЕЛАНИЯ ДЕНИ</div>
+        <div class="wishes-header-count" id="wishesCount">Загружаем...</div>
+      </div>
+    </div>
+    <div class="wishes-scroll" id="wishesScroll">
+      <div class="wishes-loading">Загружаем пожелания...</div>
+    </div>
+  </div>
 </body>
 </html>
