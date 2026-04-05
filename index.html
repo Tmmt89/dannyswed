@@ -2504,7 +2504,8 @@
           font-family:'Press Start 2P',monospace; font-size:7px; padding:8px 12px;
           margin-bottom:8px; cursor:pointer; width:100%; }
         .edit-mode .marker-btn { cursor:grab!important; }
-        .edit-mode .zone, .edit-mode .quiz-btn,
+        .edit-mode .zone { cursor:grab!important; }
+        .edit-mode .quiz-btn,
         .edit-mode .envelope-btn { pointer-events:none; opacity:0.3; }
         .edit-mode .easter-boat,
         .edit-mode .secret-spot {
@@ -2610,7 +2611,7 @@
       let dragMarker = null, dragWrapper = null, dragOX = 0, dragOY = 0;
 
       function startDrag(e) {
-        const marker = e.target.closest('.marker') || e.target.closest('.easter-boat') || e.target.closest('.secret-spot');
+        const marker = e.target.closest('.marker') || e.target.closest('.zone') || e.target.closest('.easter-boat') || e.target.closest('.secret-spot');
         if (!marker) return;
         e.preventDefault();
         dragMarker = marker;
@@ -2688,7 +2689,7 @@
       const events = [
         { time: '10:30', icon: '🏁', name: 'СБОР ГОСТЕЙ',          desc: 'Сбор гостей и выезд за невестой',   addr: '📍 Алды, ул. Цимлянская, д. 28' },
         { time: '11:00', icon: '🚗', name: 'ВЫЕЗД ЗА НЕВЕСТОЙ',    desc: 'Кортеж выезжает за невестой',       addr: '📍 Маршрут ~1 час' },
-        { time: '12:00', icon: '💒', name: 'ДОМ НЕВЕСТЫ',          desc: 'Прибытие к дому невесты',           addr: '📍 ул. Лермонтова, 194' },
+        { time: '12:00', icon: '🏠', name: 'ДОМ НЕВЕСТЫ',          desc: 'Прибытие к дому невесты',           addr: '📍 ул. Лермонтова, 194' },
         { time: '13:00', icon: '🚙', name: 'ОТБЫТИЕ В РЕСТОРАН',   desc: 'Кортеж выезжает из дома невесты',   addr: '📍 Маршрут ~30 мин' },
         { time: '13:30', icon: '🍽️', name: 'РЕСТОРАН «ПАРУС»',     desc: 'Прибытие в ресторан «Парус»',       addr: '📍 ул. Мамсурова, 6Б' },
       ];
