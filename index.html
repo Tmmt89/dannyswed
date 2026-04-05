@@ -1239,7 +1239,7 @@
 
       <!-- КОНВЕРТ — кнопка пожеланий -->
       <div class="envelope-btn" id="envelopeBtn">
-        <div class="envelope-icon">💌</div>
+        <div class="envelope-icon">✉️</div>
         <div class="envelope-text">ПОЖЕЛАНИЯ</div>
       </div>
 
@@ -1536,17 +1536,23 @@
   <div class="modal-overlay" id="modal-envelope">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-header-icon">💌</div>
+        <div class="modal-header-icon">✉️</div>
         <div class="modal-header-text">
           <h3>ПОЖЕЛАНИЯ ДЕНИ</h3>
           <span class="modal-time">Напиши здесь всё, что ты постеснялся сказать на камеру на свадьбе.</span>
         </div>
       </div>
       <div class="modal-body" id="envelopeBody">
+        <div style="padding: 16px 16px 0; color: var(--cream); font-size: 7px; line-height: 2.4; border-bottom: 2px solid var(--gold-dim); margin-bottom: 4px;">
+          Дени, в этот день хочется сказать тебе самое главное.<br><br>
+          Ты создал семью — и это не просто красивые слова. Это новая глава, в которой каждый день будет иметь смысл.<br><br>
+          Пусть ваш дом будет тёплым, а любовь — крепче любых испытаний. Пусть вы смеётесь вместе чаще, чем спорите, и выбираете друг друга каждый новый день.<br><br>
+          С любовью и от всего сердца — поздравляем!
+        </div>
         <form class="envelope-form" id="wishForm">
           <label>ТВОЁ ИМЯ</label>
           <input type="text" name="name" placeholder="Как тебя зовут?" required>
-          <label>ПОЖЕЛАНИЕ</label>
+          <label>ТВОЁ ПОЖЕЛАНИЕ</label>
           <textarea name="wish" placeholder="Напиши пожелание Дени..." required></textarea>
           <!--
             Отправка пожеланий. Замени YOUR_EMAIL на email Дени:
@@ -2165,7 +2171,7 @@
     var gWrap = null;
     var gRunning = false;
     var gTime = 0;
-    var gDuration = 25;
+    var gDuration = 40;
     var gLastFrame = 0;
     var gPlayer = null;
     var gObstacles = [];
@@ -2304,7 +2310,7 @@
 
     // Unified sprite height for car and obstacles
     var gSpriteH = 0;
-    function gGetSpriteH() { return Math.min(gCanvas.width, gCanvas.height) * 0.10; }
+    function gGetSpriteH() { return Math.min(gCanvas.width, gCanvas.height) * 0.11; }
 
     function gDrawPlayer() {
       var isZ = gChar === 'zurab';
