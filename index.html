@@ -736,6 +736,65 @@
     .quiz-btn-text { font-size: 5px; color: var(--gold); white-space: nowrap; }
 
     /* ═══════════════════════════════════════
+       ZASADA — money animation
+       ═══════════════════════════════════════ */
+    .zasada-pay-area {
+      text-align: center;
+      padding: 10px 0 6px;
+    }
+
+    .btn-pay {
+      display: inline-block;
+      padding: 14px 28px;
+      background: var(--green);
+      color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      box-shadow: inset -3px -3px 0 var(--green-dark), inset 3px 3px 0 #58d68d;
+      transition: transform 0.1s;
+    }
+    .btn-pay:active {
+      transform: scale(0.95);
+      box-shadow: inset 3px 3px 0 var(--green-dark), inset -3px -3px 0 #58d68d;
+    }
+    .btn-pay.done {
+      background: #555;
+      pointer-events: none;
+      box-shadow: none;
+    }
+
+    .zasada-counter {
+      color: var(--cream);
+      font-size: 7px;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .money-fly {
+      position: absolute;
+      font-size: 20px;
+      pointer-events: none;
+      z-index: 999;
+      animation: fly-away 0.8s ease-out forwards;
+    }
+
+    @keyframes fly-away {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3); }
+    }
+
+    .zasada-success {
+      text-align: center;
+      color: var(--green);
+      font-size: 9px;
+      line-height: 2.5;
+      padding: 10px 0;
+    }
+
+    /* ═══════════════════════════════════════
        LOADING SCREEN
        ═══════════════════════════════════════ */
     .loading-screen {
@@ -874,6 +933,11 @@
       <div class="marker" style="left:57.5%; top:34.5%;" data-modal="modal-bride">
         <div class="marker-btn">🏠</div>
         <div class="marker-label">ДОМ НЕВЕСТЫ</div>
+      </div>
+
+      <div class="marker marker--red" style="left:45%; top:55%;" data-modal="modal-zasada">
+        <div class="marker-btn">🚧</div>
+        <div class="marker-label">ЗАСАДА</div>
       </div>
 
       <button class="btn-back" data-back="screen-zone-a">◀ НАЗАД К КАРТЕ</button>
@@ -1153,6 +1217,38 @@
           -->
           <button type="submit" class="btn-nes btn-send">📨 ОТПРАВИТЬ</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       ЗАСАДА
+       ═══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-zasada">
+    <div class="modal">
+      <div class="modal-header" style="background:linear-gradient(135deg,#922b21,#e74c3c);">
+        <div class="modal-header-icon">🚧</div>
+        <div class="modal-header-text">
+          <h3 style="color:#fff;">ЗАСАДА!</h3>
+          <span class="modal-time" style="color:rgba(255,255,255,0.8);">Дорога перекрыта</span>
+        </div>
+      </div>
+      <div class="modal-body" id="zasadaBody">
+        <!-- Замени src на картинку засады когда будет -->
+        <img class="modal-img" id="zasadaImg" src="zasada.jpg" alt="Засада" style="display:none;" onload="this.style.display='block'">
+        <div class="modal-text" id="zasadaText" style="text-align:center; font-size:8px;">
+          Кортеж не успел выехать
+          от дома невесты, как тут же
+          попал в засаду!
+          <br><br>
+          <span style="color:var(--red-hi); font-size:9px;">
+          Придётся раскошелиться...</span>
+        </div>
+        <div class="zasada-pay-area" id="zasadaPayArea">
+          <button class="btn-pay" id="btnPay">💰 ЗАПЛАТИТЬ</button>
+          <div class="zasada-counter" id="zasadaCounter">Осталось заплатить: 3</div>
+        </div>
+        <button class="btn-nes btn-close" onclick="closeZasada()">ЗАКРЫТЬ</button>
       </div>
     </div>
   </div>
@@ -1478,6 +1574,70 @@
     /* ═══════════════════════════════════════
        EASTER EGG — SECRET TRIPLE TAP
        ═══════════════════════════════════════ */
+    /* ═══════════════════════════════════════
+       ZASADA — pay to pass
+       ═══════════════════════════════════════ */
+    (function() {
+      let payCount = 0;
+      const btn = document.getElementById('btnPay');
+      const counter = document.getElementById('zasadaCounter');
+      const moneyEmojis = ['💵', '💴', '💶', '💷', '💰', '🪙'];
+
+      btn.addEventListener('click', function(e) {
+        payCount++;
+
+        // Spawn flying money
+        for (let i = 0; i < 6; i++) {
+          const m = document.createElement('span');
+          m.className = 'money-fly';
+          m.textContent = moneyEmojis[Math.floor(Math.random() * moneyEmojis.length)];
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 60 + Math.random() * 80;
+          m.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+          m.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+          m.style.left = e.offsetX + 'px';
+          m.style.top = e.offsetY + 'px';
+          btn.parentElement.appendChild(m);
+          setTimeout(() => m.remove(), 800);
+        }
+
+        const remaining = 3 - payCount;
+        if (remaining > 0) {
+          counter.textContent = 'Осталось заплатить: ' + remaining;
+        } else {
+          // Success!
+          btn.classList.add('done');
+          btn.textContent = '✅ ОПЛАЧЕНО';
+          counter.textContent = '';
+
+          setTimeout(() => {
+            document.getElementById('zasadaText').innerHTML =
+              '<span style="color:var(--green); font-size:10px;">' +
+              '🎉 УРА, ПУТЬ СВОБОДЕН!</span>' +
+              '<br><br>' +
+              'Разбойники довольны.' +
+              '<br>Кортеж продолжает путь!' +
+              '<br><br>' +
+              '<span class="note">💸 Спасибо за щедрость</span>';
+
+            // Swap image if zasada_free.jpg exists
+            const img = document.getElementById('zasadaImg');
+            if (img) {
+              img.src = 'zasada_free.jpg';
+              img.style.display = '';
+              img.onerror = function() { this.style.display = 'none'; };
+            }
+
+            document.getElementById('zasadaPayArea').style.display = 'none';
+          }, 500);
+        }
+      });
+    })();
+
+    function closeZasada() {
+      document.getElementById('modal-zasada').classList.remove('active');
+    }
+
     document.getElementById('secretSpot').addEventListener('click', (e) => {
       e.stopPropagation();
       document.getElementById('modal-secret').classList.add('active');
