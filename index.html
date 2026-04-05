@@ -1508,9 +1508,10 @@
         <div class="game-msg-text">
           Доберись до дома невесты,<br>
           перепрыгивая препятствия!<br><br>
-          Тапни, чтобы прыгнуть.
+          Выбери своего гонщика:
         </div>
-        <button class="btn-nes btn-navigate" onclick="startGame()" style="max-width:250px;">▶ НАЧАТЬ</button>
+        <button class="btn-nes btn-navigate" onclick="startGame('zurab')" style="max-width:250px;">🖤 ZUR AB — BMW X5</button>
+        <button class="btn-nes btn-send" onclick="startGame('salambek')" style="max-width:250px;">💛 САЛАМБЕК — MERCEDES</button>
       </div>
       <div class="game-msg hidden" id="gameFail">
         <div class="game-msg-icon" id="failIcon">💥</div>
@@ -1925,6 +1926,7 @@
       let gameDuration = 25;
       let lastFrame = 0;
       let player, obstacles, nextObstacle, obstacleIndex, speed;
+      let selectedChar = 'zurab';
 
       // Obstacle types
       const obstacleTypes = [
@@ -2012,13 +2014,19 @@
         const w = player.w;
         const h = player.h;
 
+        const isZurab = selectedChar === 'zurab';
+        const bodyColor = isZurab ? '#1a1a1a' : '#c8a84e';
+        const roofColor = isZurab ? '#1a1a1a' : '#b8963e';
+        const windowColor = isZurab ? '#4488cc' : '#3a3a3a';
+
         // Car body
-        ctx.fillStyle = '#1a1a1a';
+        ctx.fillStyle = bodyColor;
         ctx.fillRect(x, y, w, h);
         // Roof
+        ctx.fillStyle = roofColor;
         ctx.fillRect(x + w * 0.15, y - h * 0.5, w * 0.7, h * 0.55);
         // Windows
-        ctx.fillStyle = '#4488cc';
+        ctx.fillStyle = windowColor;
         ctx.fillRect(x + w * 0.2, y - h * 0.42, w * 0.25, h * 0.38);
         ctx.fillRect(x + w * 0.5, y - h * 0.42, w * 0.25, h * 0.38);
         // Wheels
@@ -2032,6 +2040,13 @@
         // Headlight
         ctx.fillStyle = '#ffdd44';
         ctx.fillRect(x + w - 4, y + h * 0.2, 4, h * 0.25);
+
+        // Name above car
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold ' + (h * 0.4) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(isZurab ? 'Zur Ab' : 'Саламбек', x + w / 2, y - h * 0.6);
       }
 
       function drawObstacle(obs) {
@@ -2143,7 +2158,8 @@
         document.getElementById('gameWin').classList.remove('hidden');
       }
 
-      window.startGame = function() {
+      window.startGame = function(char) {
+        if (char) selectedChar = char;
         document.getElementById('gameStart').classList.add('hidden');
         document.getElementById('gameFail').classList.add('hidden');
         document.getElementById('gameWin').classList.add('hidden');
