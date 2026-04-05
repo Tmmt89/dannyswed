@@ -780,6 +780,7 @@
     .game-canvas-wrap canvas {
       width: 100%; height: 100%;
       display: block;
+      pointer-events: none;
     }
 
     .game-msg {
@@ -1980,21 +1981,21 @@
       // Player
       function resetPlayer() {
         player = {
-          x: canvas.width * 0.12,
-          w: canvas.width * 0.08,
-          h: canvas.width * 0.05,
+          x: canvas.width * 0.08,
+          w: canvas.width * 0.16,
+          h: canvas.width * 0.09,
           y: 0,
           vy: 0,
           grounded: true
         };
-        player.groundY = canvas.height * 0.72;
+        player.groundY = canvas.height * 0.68;
         player.y = player.groundY;
       }
 
       function jump() {
         if (!gameRunning) return;
         if (player.grounded) {
-          player.vy = -canvas.height * 0.028;
+          player.vy = -canvas.height * 0.035;
           player.grounded = false;
         }
       }
@@ -2031,7 +2032,7 @@
       function drawPlayer() {
         const isZurab = selectedChar === 'zurab';
         const spr = sprites[isZurab ? 'zurab' : 'salambek'];
-        const h = player.h * 2.2;
+        const h = player.h * 1.8;
         const w = spr.naturalWidth ? (h * spr.naturalWidth / spr.naturalHeight) : player.w;
 
         if (spr.complete && spr.naturalWidth) {
@@ -2052,7 +2053,7 @@
 
       function drawObstacle(obs) {
         const spr = sprites[obs.type.sprite];
-        const obsH = canvas.height * 0.18;
+        const obsH = canvas.height * 0.13;
         const obsW = spr.naturalWidth ? (obsH * spr.naturalWidth / spr.naturalHeight) : obsH * 0.6;
         const groundY = player.groundY + player.h;
 
@@ -2194,12 +2195,13 @@
       });
 
       // Jump controls
-      document.getElementById('gameWrap').addEventListener('click', (e) => {
-        if (e.target.closest('.game-msg') || e.target.closest('button')) return;
+      // Jump on tap anywhere on the overlay (not just gameWrap)
+      document.getElementById('gameOverlay').addEventListener('click', (e) => {
+        if (e.target.closest('.game-msg') || e.target.closest('button') || e.target.closest('.game-close')) return;
         jump();
       });
-      document.getElementById('gameWrap').addEventListener('touchstart', (e) => {
-        if (e.target.closest('.game-msg') || e.target.closest('button')) return;
+      document.getElementById('gameOverlay').addEventListener('touchstart', (e) => {
+        if (e.target.closest('.game-msg') || e.target.closest('button') || e.target.closest('.game-close')) return;
         e.preventDefault();
         jump();
       }, { passive: false });
