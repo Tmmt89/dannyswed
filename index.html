@@ -1305,7 +1305,6 @@
     <div class="hud-title">
       СВАДЬБА ДЕНИ
       <span>6 АПРЕЛЯ 2026 — ГРОЗНЫЙ</span>
-      <div class="countdown" id="countdown"></div>
     </div>
   </div>
 
@@ -2045,26 +2044,6 @@
        COUNTDOWN TIMER
        До 6 апреля 2026, 08:00 (UTC+3 Грозный)
        ═══════════════════════════════════════ */
-    (function() {
-      const target = new Date('2026-04-06T08:00:00+03:00').getTime();
-      const el = document.getElementById('countdown');
-
-      function update() {
-        const diff = target - Date.now();
-        if (diff <= 0) {
-          el.innerHTML = '<b>СЕГОДНЯ СВАДЬБА!</b>';
-          return;
-        }
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        el.innerHTML = 'ДО СВАДЬБЫ: <b>' + d + 'Д ' + h + 'Ч ' + m + 'М ' + s + 'С</b>';
-      }
-
-      update();
-      setInterval(update, 1000);
-    })();
 
     /* ═══════════════════════════════════════
        ENVELOPE — WISHES FORM
@@ -2400,7 +2379,7 @@
     var gObstacleTypes = [
       { sprite: 'stop', label: 'Стоп-колёса', msg: 'Ты попал на стоп-колёса и застрял в пробке!', img: 'Traffic_jam.png' },
       { sprite: 'police', label: 'ДПС', msg: 'Ты нарушил сплошную и попал на лишение!', img: 'fine.png' },
-      { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!' },
+      { sprite: 'traffic', label: 'Светофор', msg: 'Кортеж уехал, а ты встал на красный и отстал!', img: 'red_light.png' },
       { sprite: 'granddad', label: 'Де ваш', msg: 'Ты беспределил на дороге, и тебя отругал де ваш!', img: 'reckless.png' }
     ];
 
